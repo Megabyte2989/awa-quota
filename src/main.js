@@ -456,13 +456,16 @@ function setupTableListeners() {
 
     const selectItem = (item) => {
       descInput.value = item.desc;
-      originInput.value = item.origin;
-      priceInput.value = item.price !== '' && item.price !== 0 ? item.price.toString() : '';
-      
-      // Update state data structure
       quoteData.lines[idx].desc = item.desc;
-      quoteData.lines[idx].origin = item.origin;
-      quoteData.lines[idx].price = priceInput.value;
+      
+      if (item.origin) {
+        originInput.value = item.origin;
+        quoteData.lines[idx].origin = item.origin;
+      }
+      if (item.price) {
+        priceInput.value = item.price.toString();
+        quoteData.lines[idx].price = item.price.toString();
+      }
       
       calculateRowAmount(idx);
       closeDropdown();

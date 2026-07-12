@@ -1,0 +1,617 @@
+[
+  {
+    "desc": "-35",
+    "origin": "",
+    "price": ""
+  },
+  {
+    "desc": "-8",
+    "origin": "",
+    "price": ""
+  },
+  {
+    "desc": "1",
+    "origin": "",
+    "price": ""
+  },
+  {
+    "desc": "10",
+    "origin": "",
+    "price": ""
+  },
+  {
+    "desc": "100",
+    "origin": "",
+    "price": ""
+  },
+  {
+    "desc": "1000",
+    "origin": "",
+    "price": ""
+  },
+  {
+    "desc": "1000.0000000000001",
+    "origin": "",
+    "price": ""
+  },
+  {
+    "desc": "10100",
+    "origin": "",
+    "price": ""
+  },
+  {
+    "desc": "11",
+    "origin": "",
+    "price": ""
+  },
+  {
+    "desc": "11334",
+    "origin": "",
+    "price": ""
+  },
+  {
+    "desc": "1154.999",
+    "origin": "",
+    "price": ""
+  },
+  {
+    "desc": "1175",
+    "origin": "",
+    "price": ""
+  },
+  {
+    "desc": "122",
+    "origin": "",
+    "price": ""
+  },
+  {
+    "desc": "125",
+    "origin": "",
+    "price": ""
+  },
+  {
+    "desc": "1292",
+    "origin": "",
+    "price": ""
+  },
+  {
+    "desc": "1312",
+    "origin": "",
+    "price": ""
+  },
+  {
+    "desc": "1330.665",
+    "origin": "",
+    "price": ""
+  },
+  {
+    "desc": "136",
+    "origin": "",
+    "price": ""
+  },
+  {
+    "desc": "14",
+    "origin": "",
+    "price": ""
+  },
+  {
+    "desc": "140",
+    "origin": "",
+    "price": ""
+  },
+  {
+    "desc": "1406",
+    "origin": "",
+    "price": ""
+  },
+  {
+    "desc": "147",
+    "origin": "",
+    "price": ""
+  },
+  {
+    "desc": "15",
+    "origin": "",
+    "price": ""
+  },
+  {
+    "desc": "150",
+    "origin": "",
+    "price": ""
+  },
+  {
+    "desc": "1575",
+    "origin": "",
+    "price": ""
+  },
+  {
+    "desc": "158",
+    "origin": "",
+    "price": ""
+  },
+  {
+    "desc": "160",
+    "origin": "",
+    "price": ""
+  },
+  {
+    "desc": "16222",
+    "origin": "",
+    "price": ""
+  },
+  {
+    "desc": "1700",
+    "origin": "",
+    "price": ""
+  },
+  {
+    "desc": "1728",
+    "origin": "",
+    "price": ""
+  },
+  {
+    "desc": "1766",
+    "origin": "",
+    "price": ""
+  },
+  {
+    "desc": "177",
+    "origin": "",
+    "price": ""
+  },
+  {
+    "desc": "1800",
+    "origin": "",
+    "price": ""
+  },
+  {
+    "desc": "19",
+    "origin": "",
+    "price": ""
+  },
+  {
+    "desc": "1975",
+    "origin": "",
+    "price": ""
+  },
+  {
+    "desc": "1984",
+    "origin": "",
+    "price": ""
+  },
+  {
+    "desc": "2",
+    "origin": "",
+    "price": ""
+  },
+  {
+    "desc": "20",
+    "origin": "",
+    "price": ""
+  },
+  {
+    "desc": "200",
+    "origin": "",
+    "price": ""
+  },
+  {
+    "desc": "2037",
+    "origin": "",
+    "price": ""
+  },
+  {
+    "desc": "2105.834",
+    "origin": "",
+    "price": ""
+  },
+  {
+    "desc": "225",
+    "origin": "",
+    "price": ""
+  },
+  {
+    "desc": "2250",
+    "origin": "",
+    "price": ""
+  },
+  {
+    "desc": "23",
+    "origin": "",
+    "price": ""
+  },
+  {
+    "desc": "2331.667",
+    "origin": "",
+    "price": ""
+  },
+  {
+    "desc": "24",
+    "origin": "",
+    "price": ""
+  },
+  {
+    "desc": "25",
+    "origin": "",
+    "price": ""
+  },
+  {
+    "desc": "250",
+    "origin": "",
+    "price": ""
+  },
+  {
+    "desc": "2500",
+    "origin": "",
+    "price": ""
+  },
+  {
+    "desc": "25200",
+    "origin": "",
+    "price": ""
+  },
+  {
+    "desc": "2553",
+    "origin": "",
+    "price": ""
+  },
+  {
+    "desc": "2570.166",
+    "origin": "",
+    "price": ""
+  },
+  {
+    "desc": "259",
+    "origin": "",
+    "price": ""
+  },
+  {
+    "desc": "2637",
+    "origin": "",
+    "price": ""
+  },
+  {
+    "desc": "2710",
+    "origin": "",
+    "price": ""
+  },
+  {
+    "desc": "275",
+    "origin": "",
+    "price": ""
+  },
+  {
+    "desc": "2759",
+    "origin": "",
+    "price": ""
+  },
+  {
+    "desc": "2918",
+    "origin": "",
+    "price": ""
+  },
+  {
+    "desc": "2940",
+    "origin": "",
+    "price": ""
+  },
+  {
+    "desc": "2954",
+    "origin": "",
+    "price": ""
+  },
+  {
+    "desc": "3",
+    "origin": "",
+    "price": ""
+  },
+  {
+    "desc": "30",
+    "origin": "",
+    "price": ""
+  },
+  {
+    "desc": "326",
+    "origin": "",
+    "price": ""
+  },
+  {
+    "desc": "3274",
+    "origin": "",
+    "price": ""
+  },
+  {
+    "desc": "3400",
+    "origin": "",
+    "price": ""
+  },
+  {
+    "desc": "346",
+    "origin": "",
+    "price": ""
+  },
+  {
+    "desc": "35",
+    "origin": "",
+    "price": ""
+  },
+  {
+    "desc": "3610",
+    "origin": "",
+    "price": ""
+  },
+  {
+    "desc": "369",
+    "origin": "",
+    "price": ""
+  },
+  {
+    "desc": "3725.9990000000003",
+    "origin": "",
+    "price": ""
+  },
+  {
+    "desc": "375",
+    "origin": "",
+    "price": ""
+  },
+  {
+    "desc": "37598.5",
+    "origin": "",
+    "price": ""
+  },
+  {
+    "desc": "40",
+    "origin": "",
+    "price": ""
+  },
+  {
+    "desc": "4000",
+    "origin": "",
+    "price": ""
+  },
+  {
+    "desc": "425",
+    "origin": "",
+    "price": ""
+  },
+  {
+    "desc": "44",
+    "origin": "",
+    "price": ""
+  },
+  {
+    "desc": "45",
+    "origin": "",
+    "price": ""
+  },
+  {
+    "desc": "463060",
+    "origin": "",
+    "price": ""
+  },
+  {
+    "desc": "480",
+    "origin": "",
+    "price": ""
+  },
+  {
+    "desc": "4843",
+    "origin": "",
+    "price": ""
+  },
+  {
+    "desc": "5",
+    "origin": "",
+    "price": ""
+  },
+  {
+    "desc": "50",
+    "origin": "",
+    "price": ""
+  },
+  {
+    "desc": "500",
+    "origin": "",
+    "price": ""
+  },
+  {
+    "desc": "5000",
+    "origin": "",
+    "price": ""
+  },
+  {
+    "desc": "510",
+    "origin": "",
+    "price": ""
+  },
+  {
+    "desc": "528.5",
+    "origin": "",
+    "price": ""
+  },
+  {
+    "desc": "53",
+    "origin": "",
+    "price": ""
+  },
+  {
+    "desc": "544",
+    "origin": "",
+    "price": ""
+  },
+  {
+    "desc": "545",
+    "origin": "",
+    "price": ""
+  },
+  {
+    "desc": "5475",
+    "origin": "",
+    "price": ""
+  },
+  {
+    "desc": "55",
+    "origin": "",
+    "price": ""
+  },
+  {
+    "desc": "6",
+    "origin": "",
+    "price": ""
+  },
+  {
+    "desc": "60",
+    "origin": "",
+    "price": ""
+  },
+  {
+    "desc": "6000",
+    "origin": "",
+    "price": ""
+  },
+  {
+    "desc": "6050",
+    "origin": "",
+    "price": ""
+  },
+  {
+    "desc": "60857",
+    "origin": "",
+    "price": ""
+  },
+  {
+    "desc": "6225",
+    "origin": "",
+    "price": ""
+  },
+  {
+    "desc": "62250",
+    "origin": "",
+    "price": ""
+  },
+  {
+    "desc": "6233",
+    "origin": "",
+    "price": ""
+  },
+  {
+    "desc": "6500",
+    "origin": "",
+    "price": ""
+  },
+  {
+    "desc": "657",
+    "origin": "",
+    "price": ""
+  },
+  {
+    "desc": "6818",
+    "origin": "",
+    "price": ""
+  },
+  {
+    "desc": "694",
+    "origin": "",
+    "price": ""
+  },
+  {
+    "desc": "7",
+    "origin": "",
+    "price": ""
+  },
+  {
+    "desc": "700",
+    "origin": "",
+    "price": ""
+  },
+  {
+    "desc": "76",
+    "origin": "",
+    "price": ""
+  },
+  {
+    "desc": "8",
+    "origin": "",
+    "price": ""
+  },
+  {
+    "desc": "8000",
+    "origin": "",
+    "price": ""
+  },
+  {
+    "desc": "8200",
+    "origin": "",
+    "price": ""
+  },
+  {
+    "desc": "84",
+    "origin": "",
+    "price": ""
+  },
+  {
+    "desc": "850",
+    "origin": "",
+    "price": ""
+  },
+  {
+    "desc": "8900",
+    "origin": "",
+    "price": ""
+  },
+  {
+    "desc": "950",
+    "origin": "",
+    "price": ""
+  },
+  {
+    "desc": "9500",
+    "origin": "",
+    "price": ""
+  },
+  {
+    "desc": "96",
+    "origin": "",
+    "price": ""
+  },
+  {
+    "desc": "962",
+    "origin": "",
+    "price": ""
+  },
+  {
+    "desc": "969",
+    "origin": "",
+    "price": ""
+  },
+  {
+    "desc": "9700",
+    "origin": "",
+    "price": ""
+  },
+  {
+    "desc": "98",
+    "origin": "",
+    "price": ""
+  },
+  {
+    "desc": "99",
+    "origin": "",
+    "price": ""
+  },
+  {
+    "desc": "999.2",
+    "origin": "",
+    "price": ""
+  },
+  {
+    "desc": "Mar",
+    "origin": "",
+    "price": ""
+  },
+  {
+    "desc": "Sum of Qty",
+    "origin": "",
+    "price": ""
+  }
+]

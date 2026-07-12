@@ -84,6 +84,9 @@ let quoteData = {
   footerThanks: 'Thank You For Your Business!'
 };
 
+// Global materials data for autocomplete
+let materialsList = [];
+
 // Dom elements cache
 const DOM = {
   divSelectors: document.querySelectorAll('.btn-div'),
@@ -162,6 +165,15 @@ function init() {
 
   // Switch to default division Additives
   switchDivision('add');
+
+  // Load materials for autocomplete
+  fetch('/materials.json')
+    .then(res => res.json())
+    .then(data => {
+      materialsList = data;
+      console.log(`Loaded ${materialsList.length} materials for autocomplete.`);
+    })
+    .catch(err => console.error("Error loading materials list:", err));
 }
 
 // Helpers
@@ -362,7 +374,7 @@ function renderItemTable() {
     
     // Note: inputs are type="text" to allow normal keyboard inputs without arrows blocking
     row.innerHTML = `
-      <td colspan="2"><input type="text" class="desc-input text-trebuchet" value="${line.desc}" placeholder="Item description..."></td>
+      <td colspan="2" class="desc-cell-container"><input type="text" class="desc-input text-trebuchet" value="${line.desc}" placeholder="Item description..." autocomplete="off"></td>
       <td class="center-align"><input type="text" class="origin-input text-trebuchet text-center" value="${line.origin}" placeholder="Origin..."></td>
       <td class="center-align"><input type="text" class="qty-input num-input text-trebuchet text-center" value="${line.qty}" placeholder="-"></td>
       <td class="center-align"><input type="text" class="price-input num-input text-trebuchet text-center" value="${line.price}" placeholder="-"></td>
@@ -408,6 +420,7 @@ function setupTableListeners() {
     const originInput = row.querySelector('.origin-input');
     const qtyInput = row.querySelector('.qty-input');
     const priceInput = row.querySelector('.price-input');
+    const descCell = descInput.parentElement;
     
     const updateState = () => {
       quoteData.lines[idx].desc = descInput.value;
@@ -431,6 +444,104 @@ function setupTableListeners() {
     originInput.addEventListener('input', updateState);
     qtyInput.addEventListener('input', updateState);
     priceInput.addEventListener('input', updateState);
+
+    // Autocomplete Dropdown Functionality
+    let activeItemIdx = -1;
+
+    const closeDropdown = () => {
+      const existing = descCell.querySelector('.autocomplete-dropdown');
+      if (existing) existing.remove();
+      activeItemIdx = -1;
+    };
+
+    const selectItem = (item) => {
+      descInput.value = item.desc;
+      originInput.value = item.origin;
+      priceInput.value = item.price !== '' && item.price !== 0 ? item.price.toString() : '';
+      
+      // Update state data structure
+      quoteData.lines[idx].desc = item.desc;
+      quoteData.lines[idx].origin = item.origin;
+      quoteData.lines[idx].price = priceInput.value;
+      
+      calculateRowAmount(idx);
+      closeDropdown();
+      qtyInput.focus(); // Shift focus to Quantity input automatically
+    };
+
+    descInput.addEventListener('input', (e) => {
+      closeDropdown();
+      const val = descInput.value.trim().toLowerCase();
+      if (!val) return;
+
+      // Filter: only show options starting with typed text
+      const matches = materialsList.filter(item => 
+        item.desc.toLowerCase().startsWith(val)
+      ).slice(0, 40); // limit popup list to 40 items
+
+      if (matches.length === 0) return;
+
+      const dropdown = document.createElement('div');
+      dropdown.className = 'autocomplete-dropdown';
+
+      matches.forEach((match, mIdx) => {
+        const itemElement = document.createElement('div');
+        itemElement.className = 'autocomplete-item';
+        itemElement.textContent = match.desc;
+        if (mIdx === 0) {
+          itemElement.classList.add('active');
+          activeItemIdx = 0;
+        }
+
+        // Prevent input blur prior to executing selection
+        itemElement.addEventListener('mousedown', (e) => {
+          e.preventDefault();
+          selectItem(match);
+        });
+
+        dropdown.appendChild(itemElement);
+      });
+
+      descCell.appendChild(dropdown);
+    });
+
+    descInput.addEventListener('keydown', (e) => {
+      const dropdown = descCell.querySelector('.autocomplete-dropdown');
+      if (!dropdown) return;
+
+      const items = dropdown.querySelectorAll('.autocomplete-item');
+      if (items.length === 0) return;
+
+      if (e.key === 'ArrowDown') {
+        e.preventDefault();
+        items[activeItemIdx]?.classList.remove('active');
+        activeItemIdx = (activeItemIdx + 1) % items.length;
+        items[activeItemIdx].classList.add('active');
+        items[activeItemIdx].scrollIntoView({ block: 'nearest' });
+      } else if (e.key === 'ArrowUp') {
+        e.preventDefault();
+        items[activeItemIdx]?.classList.remove('active');
+        activeItemIdx = (activeItemIdx - 1 + items.length) % items.length;
+        items[activeItemIdx].classList.add('active');
+        items[activeItemIdx].scrollIntoView({ block: 'nearest' });
+      } else if (e.key === 'Enter') {
+        e.preventDefault();
+        if (activeItemIdx >= 0 && activeItemIdx < items.length) {
+          const selectedText = items[activeItemIdx].textContent;
+          const match = materialsList.find(m => m.desc === selectedText);
+          if (match) {
+            selectItem(match);
+          }
+        }
+      } else if (e.key === 'Escape') {
+        e.preventDefault();
+        closeDropdown();
+      }
+    });
+
+    descInput.addEventListener('blur', () => {
+      setTimeout(closeDropdown, 150);
+    });
   });
 }
 

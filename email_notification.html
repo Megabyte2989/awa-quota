@@ -3,272 +3,228 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>AWA Project Completion Email</title>
-  <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Cairo:wght@400;600;700&display=swap" rel="stylesheet">
+  <title>AWA Project Completion Email for Outlook</title>
   <style>
-    :root {
-      --brand-navy: #3B4E87;
-      --brand-light-blue: #D8DCE7;
-      --bg-gray: #f8fafc;
-      --text-dark: #0f172a;
-      --text-muted: #64748b;
-      --border-color: #e2e8f0;
-      --shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.05), 0 4px 6px -2px rgba(0, 0, 0, 0.02);
-      --transition: 0.2s ease;
-    }
-
-    * {
-      box-sizing: border-box;
-      margin: 0;
-      padding: 0;
-    }
-
     body {
-      font-family: 'Inter', sans-serif;
-      background-color: var(--bg-gray);
-      color: var(--text-dark);
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+      background-color: #f1f5f9;
+      color: #0f172a;
       padding: 40px 20px;
-      min-height: 100vh;
+      margin: 0;
       display: flex;
       flex-direction: column;
       align-items: center;
-      justify-content: center;
     }
-
-    .container {
+    .card {
       width: 100%;
-      max-width: 1100px;
+      max-width: 950px;
       background: #ffffff;
-      border-radius: 16px;
-      box-shadow: var(--shadow);
-      border: 1px solid var(--border-color);
+      border-radius: 12px;
+      border: 1px solid #cbd5e1;
+      box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05);
       overflow: hidden;
-      display: flex;
-      flex-direction: column;
+      margin-bottom: 20px;
     }
-
     .header {
-      background: linear-gradient(135deg, var(--brand-navy) 0%, #1e293b 100%);
-      padding: 30px;
+      background: linear-gradient(135deg, #3B4E87 0%, #1e293b 100%);
       color: #ffffff;
+      padding: 24px;
       text-align: center;
     }
-
-    .header h1 {
-      font-size: 1.8rem;
-      font-weight: 700;
-      margin-bottom: 8px;
+    .header h2 {
+      margin: 0 0 6px 0;
+      font-size: 1.5rem;
     }
-
     .header p {
-      font-size: 0.95rem;
+      margin: 0;
+      font-size: 0.9rem;
       opacity: 0.9;
     }
-
-    .email-grid {
-      display: grid;
-      grid-template-columns: 1fr 1fr;
-      border-top: 1px solid var(--border-color);
-    }
-
-    /* English Section */
-    .email-col.en {
-      border-right: 1px solid var(--border-color);
-      text-align: left;
-      direction: ltr;
-      padding: 40px;
-    }
-
-    /* Arabic Section */
-    .email-col.ar {
-      text-align: right;
-      direction: rtl;
-      font-family: 'Cairo', sans-serif;
-      padding: 40px;
-    }
-
-    .col-header {
+    .toolbar {
+      padding: 16px 24px;
+      background-color: #f8fafc;
+      border-bottom: 1px solid #e2e8f0;
       display: flex;
-      align-items: center;
-      justify-content: space-between;
-      margin-bottom: 24px;
-      padding-bottom: 12px;
-      border-bottom: 2px dashed var(--border-color);
+      justify-content: center;
+      gap: 16px;
     }
-
-    .email-col.ar .col-header {
-      flex-direction: row-reverse;
-    }
-
-    .col-title {
-      font-size: 1.1rem;
-      font-weight: 700;
-      color: var(--brand-navy);
-      display: flex;
-      align-items: center;
-      gap: 8px;
-    }
-
-    .btn-copy {
-      background: var(--bg-gray);
-      border: 1px solid var(--border-color);
-      color: var(--text-dark);
-      padding: 8px 16px;
-      font-size: 0.85rem;
+    .btn {
+      background-color: #3B4E87;
+      color: #ffffff;
+      border: none;
+      padding: 10px 20px;
+      font-size: 0.9rem;
       font-weight: 600;
       border-radius: 6px;
       cursor: pointer;
       display: inline-flex;
       align-items: center;
-      gap: 6px;
-      transition: all var(--transition);
+      gap: 8px;
+      transition: background-color 0.2s;
     }
-
-    .btn-copy:hover {
-      background: var(--brand-navy);
-      color: #ffffff;
-      border-color: var(--brand-navy);
+    .btn:hover {
+      background-color: #2f3e6c;
     }
-
-    .email-content {
-      font-size: 0.95rem;
-      line-height: 1.7;
-      color: #334155;
-      white-space: pre-wrap;
-    }
-
-    .project-link {
-      color: var(--brand-navy);
-      font-weight: 600;
-      text-decoration: none;
-      border-bottom: 1px solid var(--brand-navy);
-      padding-bottom: 1px;
-      transition: opacity var(--transition);
-    }
-
-    .project-link:hover {
-      opacity: 0.8;
-    }
-
-    .footer {
-      background: #f8fafc;
-      border-top: 1px solid var(--border-color);
-      padding: 20px;
+    .preview-label {
       text-align: center;
-      font-size: 0.85rem;
-      color: var(--text-muted);
+      font-size: 0.8rem;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      color: #64748b;
+      margin-top: 10px;
+      font-weight: 600;
     }
-
-    @media (max-width: 768px) {
-      .email-grid {
-        grid-template-columns: 1fr;
-      }
-      .email-col.en {
-        border-right: none;
-        border-bottom: 1px solid var(--border-color);
-      }
-      body {
-        padding: 20px 10px;
-      }
+    .outlook-wrapper {
+      padding: 24px;
+      background-color: #f8fafc;
+      border-bottom: 1px solid #e2e8f0;
+    }
+    .outlook-container {
+      background-color: #ffffff;
+      border: 1px solid #e2e8f0;
+      padding: 10px;
     }
   </style>
 </head>
 <body>
 
-  <div class="container">
+  <div class="card">
     <div class="header">
-      <h1>Project Completion Notification</h1>
-      <p>Send this email to Mr. Mohamed Fawzi to notify him that the AWA Quotation System is live.</p>
+      <h2>AWA Completion Notification Email</h2>
+      <p>Formatted specifically for Outlook side-by-side layout (English Left, Arabic Right)</p>
     </div>
-
-    <div class="email-grid">
-      <!-- English Email Column (Left) -->
-      <section class="email-col en">
-        <div class="col-header">
-          <span class="col-title">English Version</span>
-          <button class="btn-copy" onclick="copyText('en-text', this)">Copy Text</button>
-        </div>
-        <div class="email-content" id="en-text">Dear Mr. Mohamed Fawzi,
-
-We are pleased to inform you that the AWA Quotation System project has been successfully completed and is now live.
-
-You can access the system at the following URL:
-<a href="https://awa-quota.vercel.app" class="project-link" target="_blank">https://awa-quota.vercel.app</a>
-
-Key Features Implemented:
-- Exact Replication of the AWA Quotation Template (Excel layout, styling, and design).
-- Dynamic Sidebar Control Panel (Light Mode) to manage Validity, VAT Rates, Currency, and Item Counts.
-- Auto-complete Materials Database loaded with 792 items from your 2022 sales report (autofilling descriptions and quantities).
-- Interactive editing of rows (Origin, Price, QTY, Description) with automatic subtotal, VAT, and total calculations.
-- Dynamic Measurement Unit Support (kg, liter, pack, pc, etc.) updating table headers and Excel files on the fly.
-- Export to Excel (.xlsx) preserving formulas, cells, colors, and layout exactly.
-- Instant A4 PDF printing.
-
-Thank you for your trust and collaboration during this project. Please let us know if you have any questions or feedback.
-
-Best regards,
-AWA Project Team</div>
-      </section>
-
-      <!-- Arabic Email Column (Right) -->
-      <section class="email-col ar">
-        <div class="col-header">
-          <span class="col-title">النسخة العربية (Arabic)</span>
-          <button class="btn-copy" onclick="copyText('ar-text', this)">نسخ النص</button>
-        </div>
-        <div class="email-content" id="ar-text">عزيزي الأستاذ محمد فوزي،
-
-يسعدنا أن نبلغكم بأنه تم الانتهاء بنجاح من مشروع نظام تسعير AWA (AWA Quotation System) وهو الآن متاح للعمل بشكل مباشر.
-
-يمكنكم الوصول إلى النظام عبر الرابط التالي:
-<a href="https://awa-quota.vercel.app" class="project-link" target="_blank">https://awa-quota.vercel.app</a>
-
-أبرز الميزات التي تم تنفيذها:
-- مطابقة تامة لنموذج تسعير AWA المعتمد (من حيث تصميم وتنسيق وهيكل ورقة عمل Excel).
-- لوحة تحكم جانبية تفاعلية (بالوضع المضيء) لإدخال مدة الصلاحية، ونسبة ضريبة القيمة المضافة، والعملة، وعدد العناصر.
-- قاعدة بيانات تفاعلية للمواد تحتوي على 792 مادة مستخرجة من تقرير المبيعات لعام 2022 (مع ميزة الإكمال التلقائي والتعبئة الذاتية للمواصفات).
-- إمكانية التعديل المباشر على الصفوف (بلد المنشأ، السعر، الكمية، والبيان) مع احتساب فوري للمجموع الفرعي وضريبة القيمة المضافة والإجمالي المالي.
-- دعم ديناميكي لتغيير وحدات القياس (كجم، لتر، عبوة، قطعة، إلخ...) مع تحديث فوري لعناوين الجداول وملفات Excel المصدرة.
-- تصدير فوري إلى صيغة Excel (.xlsx) مع الحفاظ التام على المعادلات الحسابية والتنسيقات والألوان.
-- طباعة مباشرة وبجودة عالية بصيغة A4 PDF.
-
-نشكركم على ثقتكم الغالية وتعاونكم البناء طوال فترة تنفيذ المشروع. نرحب بأي استفسارات أو ملاحظات إضافية لديكم.
-
-مع خالص التحية والتقدير،
-فريق عمل مشروع AWA</div>
-      </section>
+    
+    <div class="toolbar">
+      <button class="btn" id="btn-copy-rich" onclick="copyTableForOutlook()">
+        📋 Copy Side-by-Side Email for Outlook
+      </button>
     </div>
-
-    <div class="footer">
-      AWA Quotation System project completed on 2026. Made with ❤️.
+    
+    <div class="preview-label">Live Outlook Preview Box (Copyable)</div>
+    
+    <div class="outlook-wrapper">
+      <div class="outlook-container" id="table-container">
+        <!-- START OF OUTLOOK EMAIL TABLE -->
+        <table width="100%" border="0" cellpadding="0" cellspacing="0" style="width:100%; border-collapse:collapse; background-color:#ffffff; margin:0 auto; font-family:Arial, sans-serif;">
+          <tr>
+            <!-- English Column (Left) -->
+            <td valign="top" width="50%" align="left" style="width:50%; border-right:1px solid #e2e8f0; font-family:Arial, sans-serif; font-size:14px; line-height:1.6; color:#334155; padding:24px; direction:ltr;">
+              <p style="margin:0 0 16px 0; font-weight:bold; color:#3b4e87; font-size:15px;">Dear Mr. Mohamed Fawzi,</p>
+              
+              <p style="margin:0 0 16px 0;">We are pleased to inform you that the AWA Quotation System project has been successfully completed and is now live.</p>
+              
+              <p style="margin:0 0 20px 0;">You can access the system at the following URL:<br>
+                <a href="https://awa-quota.vercel.app" style="color:#3b4e87; font-weight:bold; text-decoration:none;" target="_blank">https://awa-quota.vercel.app</a>
+              </p>
+              
+              <p style="margin:0 0 8px 0; font-weight:bold; color:#1e293b;">Key Features Implemented:</p>
+              <ul style="margin:0 0 20px 0; padding-left:20px; color:#475569;">
+                <li style="margin-bottom:6px;">Exact Replication of the AWA Quotation Template (Excel layout and design).</li>
+                <li style="margin-bottom:6px;">Dynamic Sidebar Control Panel (Light Mode) to manage Validity, VAT, Currency, and Item Counts.</li>
+                <li style="margin-bottom:6px;">Auto-complete Materials Database loaded with 792 items from your sales report.</li>
+                <li style="margin-bottom:6px;">Interactive row editing (Origin, Price, QTY) with automatic totals.</li>
+                <li style="margin-bottom:6px;">Dynamic Measurement Unit Support (kg, liter, pack, pc, etc.) updating headers dynamically.</li>
+                <li style="margin-bottom:6px;">Export to Excel (.xlsx) preserving all styles and formulas.</li>
+                <li style="margin-bottom:6px;">Instant A4 PDF printing.</li>
+              </ul>
+              
+              <p style="margin:0 0 20px 0;">Thank you for your trust and collaboration during this project. Please let us know if you have any questions or feedback.</p>
+              
+              <p style="margin:0; font-weight:bold; color:#3b4e87;">Best regards,<br>AWA Project Team</p>
+            </td>
+            
+            <!-- Arabic Column (Right) -->
+            <td valign="top" width="50%" align="right" style="width:50%; font-family:'Segoe UI', Tahoma, Arial, sans-serif; font-size:14px; line-height:1.7; color:#334155; padding:24px; direction:rtl;">
+              <p style="margin:0 0 16px 0; font-weight:bold; color:#3b4e87; font-size:15px;">عزيزي الأستاذ محمد فوزي،</p>
+              
+              <p style="margin:0 0 16px 0;">يسعدنا أن نبلغكم بأنه تم الانتهاء بنجاح من مشروع نظام تسعير AWA (AWA Quotation System) وهو الآن متاح للعمل بشكل مباشر.</p>
+              
+              <p style="margin:0 0 20px 0;">يمكنكم الوصول إلى النظام عبر الرابط التالي:<br>
+                <a href="https://awa-quota.vercel.app" style="color:#3b4e87; font-weight:bold; text-decoration:none;" target="_blank">https://awa-quota.vercel.app</a>
+              </p>
+              
+              <p style="margin:0 0 8px 0; font-weight:bold; color:#1e293b;">أبرز الميزات التي تم تنفيذها:</p>
+              <ul style="margin:0 0 20px 0; padding-right:20px; color:#475569;">
+                <li style="margin-bottom:6px;">مطابقة تامة لنموذج تسعير AWA المعتمد (من حيث الهيكل والتنسيق والألوان).</li>
+                <li style="margin-bottom:6px;">لوحة تحكم جانبية تفاعلية بالوضع المضيء لإدخال VAT والعملة وعدد العناصر.</li>
+                <li style="margin-bottom:6px;">قاعدة بيانات للمواد مع ميزة الإكمال التلقائي والتعبئة الذاتية لـ 792 مادة.</li>
+                <li style="margin-bottom:6px;">إمكانية التعديل المباشر على الصفوف واحتساب فوري للمجموع الكلي وضريبة VAT.</li>
+                <li style="margin-bottom:6px;">دعم ديناميكي لوحدات القياس (كجم، لتر، عبوة، قطعة) مع تحديث عناوين الجداول.</li>
+                <li style="margin-bottom:6px;">تصدير فوري لملف Excel (.xlsx) مع الحفاظ على التنسيقات والمعادلات.</li>
+                <li style="margin-bottom:6px;">طباعة مباشرة وبجودة عالية بصيغة A4 PDF.</li>
+              </ul>
+              
+              <p style="margin:0 0 20px 0;">نشكركم على ثقتكم الغالية وتعاونكم البناء طوال فترة تنفيذ المشروع. نرحب بأي استفسارات أو ملاحظات إضافية لديكم.</p>
+              
+              <p style="margin:0; font-weight:bold; color:#3b4e87;">مع خالص التحية والتقدير،<br>فريق عمل مشروع AWA</p>
+            </td>
+          </tr>
+        </table>
+        <!-- END OF OUTLOOK EMAIL TABLE -->
+      </div>
+    </div>
+    
+    <div style="padding: 16px; text-align: center; font-size: 0.8rem; color: #64748b; background-color: #f8fafc;">
+      Simply click the blue button above to copy, then paste (Ctrl+V) directly into Outlook.
     </div>
   </div>
 
   <script>
-    function copyText(elementId, btn) {
-      const textElement = document.getElementById(elementId);
-      // Create a temporary textarea to extract text only (excluding links markup)
-      const el = document.createElement('textarea');
-      el.value = textElement.textContent;
-      document.body.appendChild(el);
-      el.select();
-      document.execCommand('copy');
-      document.body.removeChild(el);
+    function copyTableForOutlook() {
+      const container = document.getElementById('table-container');
+      const htmlContent = container.innerHTML;
+      const textContent = container.textContent;
 
+      // Check if modern ClipboardItem API is supported
+      if (typeof ClipboardItem !== 'undefined') {
+        const blobHtml = new Blob([htmlContent], { type: 'text/html' });
+        const blobText = new Blob([textContent], { type: 'text/plain' });
+
+        const item = new ClipboardItem({
+          'text/html': blobHtml,
+          'text/plain': blobText
+        });
+
+        navigator.clipboard.write([item]).then(() => {
+          showSuccess();
+        }).catch(err => {
+          fallbackCopy(container);
+        });
+      } else {
+        fallbackCopy(container);
+      }
+    }
+
+    function showSuccess() {
+      const btn = document.getElementById('btn-copy-rich');
       const originalText = btn.textContent;
-      btn.textContent = elementId === 'ar-text' ? 'تم النسخ!' : 'Copied!';
-      btn.style.background = '#10b981';
-      btn.style.borderColor = '#10b981';
-      btn.style.color = '#ffffff';
+      btn.textContent = '✅ Copied Rich Table for Outlook!';
+      btn.style.backgroundColor = '#10b981';
 
       setTimeout(() => {
         btn.textContent = originalText;
-        btn.style.background = '';
-        btn.style.borderColor = '';
-        btn.style.color = '';
-      }, 2000);
+        btn.style.backgroundColor = '';
+      }, 3000);
+    }
+
+    function fallbackCopy(container) {
+      const range = document.createRange();
+      range.selectNode(container);
+      window.getSelection().removeAllRanges();
+      window.getSelection().addRange(range);
+      
+      try {
+        const successful = document.execCommand('copy');
+        if (successful) {
+          showSuccess();
+        } else {
+          alert('Please manually select the preview box and copy it.');
+        }
+      } catch (err) {
+        alert('Could not copy automatically. Please select the table and press Ctrl+C.');
+      }
+      
+      window.getSelection().removeAllRanges();
     }
   </script>
 </body>

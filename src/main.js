@@ -65,7 +65,6 @@ const DIVISIONS = {
 // Global App State
 let currentDiv = 'add';
 let quoteData = {
-  id: '', // database ID for localStorage
   preparedBy: '',
   quoteNo: '123456',
   customerId: '123',
@@ -75,11 +74,12 @@ let quoteData = {
   currency: 'EGP',
   vatRate: 14,
   vatIncluded: true,
+  itemCount: 12,
   customerName: '[Company Name]',
   customerContact: '[contact name]',
   customerPhone: '[Phone]',
-  lines: [], // Array of 12 lines
-  terms: [], // Array of terms lines
+  lines: [], // Array of variable size
+  terms: [], // Array of terms lines (3 items)
   footerContact: 'If you have any questions about this price quote, please contact',
   footerThanks: 'Thank You For Your Business!'
 };
@@ -93,10 +93,8 @@ const DOM = {
   inputCurrency: document.getElementById('input-currency'),
   inputValidity: document.getElementById('input-validity'),
   inputVat: document.getElementById('input-vat'),
+  inputItemCount: document.getElementById('input-item-count'),
   checkboxVatIncluded: document.getElementById('checkbox-vat-included'),
-  searchQuotes: document.getElementById('search-quotes'),
-  quotesList: document.getElementById('quotes-list'),
-  btnSave: document.getElementById('btn-save'),
   btnNew: document.getElementById('btn-new'),
   btnPrint: document.getElementById('btn-print'),
   btnExport: document.getElementById('btn-export'),
@@ -139,8 +137,8 @@ function init() {
   DOM.sheetValidUntil.value = quoteData.validUntil;
 
   // Set default values in controls
-  DOM.inputPreparedBy.value = localStorage.getItem('awa_pref_prepared') || '';
-  quoteData.preparedBy = DOM.inputPreparedBy.value || '[salesperson name]';
+  DOM.inputPreparedBy.value = '';
+  quoteData.preparedBy = '[salesperson name]';
   DOM.sheetPreparedBy.textContent = quoteData.preparedBy;
   
   DOM.inputQuoteNo.value = quoteData.quoteNo;
@@ -148,6 +146,7 @@ function init() {
   DOM.inputCurrency.value = quoteData.currency;
   DOM.inputValidity.value = quoteData.validityDays;
   DOM.inputVat.value = quoteData.vatRate;
+  DOM.inputItemCount.value = quoteData.itemCount;
   DOM.checkboxVatIncluded.checked = quoteData.vatIncluded;
 
   // Event Listeners for controls
@@ -157,16 +156,12 @@ function init() {
   setupSheetEditableListeners();
 
   // Setup button actions
-  DOM.btnSave.addEventListener('click', saveCurrentQuote);
   DOM.btnNew.addEventListener('click', () => resetQuote(currentDiv));
   DOM.btnPrint.addEventListener('click', () => window.print());
   DOM.btnExport.addEventListener('click', exportToExcel);
 
   // Switch to default division Additives
   switchDivision('add');
-  
-  // Load quotes from localStorage
-  loadQuotesList();
 }
 
 // Helpers
@@ -210,7 +205,6 @@ function setupControlListeners() {
   DOM.inputPreparedBy.addEventListener('input', (e) => {
     quoteData.preparedBy = e.target.value || '[salesperson name]';
     DOM.sheetPreparedBy.textContent = quoteData.preparedBy;
-    localStorage.setItem('awa_pref_prepared', e.target.value); // persist pref
   });
 
   DOM.inputQuoteNo.addEventListener('input', (e) => {
@@ -248,7 +242,14 @@ function setupControlListeners() {
     calculateTotals();
   });
 
-  DOM.searchQuotes.addEventListener('input', loadQuotesList);
+  // Handle Item Count changes dynamically
+  DOM.inputItemCount.addEventListener('input', (e) => {
+    let count = parseInt(e.target.value) || 12;
+    if (count < 1) count = 1;
+    if (count > 30) count = 30;
+    quoteData.itemCount = count;
+    resizeQuoteLines(count);
+  });
 }
 
 // Setup Event Listeners for Sheet Preview editable texts
@@ -270,7 +271,6 @@ function setupSheetEditableListeners() {
 
   DOM.sheetDate.addEventListener('change', (e) => {
     quoteData.date = e.target.value;
-    // Update valid until
     const newValidUntil = formatDate(addDays(new Date(e.target.value), quoteData.validityDays));
     quoteData.validUntil = newValidUntil;
     DOM.sheetValidUntil.value = newValidUntil;
@@ -278,7 +278,6 @@ function setupSheetEditableListeners() {
 
   DOM.sheetValidUntil.addEventListener('change', (e) => {
     quoteData.validUntil = e.target.value;
-    // Calculate new validity days
     const d1 = new Date(DOM.sheetDate.value);
     const d2 = new Date(e.target.value);
     const diffTime = Math.abs(d2 - d1);
@@ -296,7 +295,6 @@ function setupSheetEditableListeners() {
     DOM.inputCurrency.value = quoteData.currency;
   });
 
-  // Footer bindings
   DOM.sheetFooterContact.addEventListener('blur', (e) => quoteData.footerContact = e.target.textContent);
   DOM.sheetFooterThanks.addEventListener('blur', (e) => quoteData.footerThanks = e.target.textContent);
 }
@@ -305,7 +303,6 @@ function setupSheetEditableListeners() {
 function switchDivision(divId) {
   currentDiv = divId;
   
-  // Update UI Selector buttons
   DOM.divSelectors.forEach(btn => {
     if (btn.getAttribute('data-div') === divId) {
       btn.classList.add('active');
@@ -324,36 +321,63 @@ function switchDivision(divId) {
   DOM.companyPhone.textContent = config.phone;
   DOM.companyFax.textContent = config.fax;
 
-  // Load default template values
-  resetItemsToDefault(config.defaultItems);
+  // Re-generate lines based on the division defaults and current item count
+  const newLines = [];
+  for (let i = 0; i < quoteData.itemCount; i++) {
+    const preset = config.defaultItems[i] || { desc: '', origin: '', qty: '', price: '' };
+    newLines.push({ ...preset });
+  }
+  quoteData.lines = newLines;
+
+  renderItemTable();
   resetTermsToDefault(config.defaultTerms);
-  
   calculateTotals();
 }
 
-// Load default items
-function resetItemsToDefault(defaultItems) {
-  DOM.itemsBody.innerHTML = '';
-  quoteData.lines = [];
-
-  // Generate 12 rows
-  for (let i = 0; i < 12; i++) {
-    const preset = defaultItems[i] || { desc: '', origin: '', qty: '', price: '' };
-    quoteData.lines.push({ ...preset });
-    
-    const row = document.createElement('tr');
-    row.innerHTML = `
-      <td colspan="2"><input type="text" class="desc-input text-trebuchet" value="${preset.desc}" placeholder="Item description..."></td>
-      <td class="center-align"><input type="text" class="origin-input text-trebuchet text-center" value="${preset.origin}" placeholder="Origin..."></td>
-      <td class="center-align"><input type="number" class="qty-input num-input text-trebuchet text-center" value="${preset.qty}" min="0" step="any" placeholder="-"></td>
-      <td class="center-align"><input type="number" class="price-input num-input text-trebuchet text-center" value="${preset.price}" min="0" step="any" placeholder="-"></td>
-      <td class="amount-cell text-trebuchet amount-val" id="amount-${i}">0.00</td>
-    `;
-    DOM.itemsBody.appendChild(row);
+// Resize the lines list (preserving current typed inputs)
+function resizeQuoteLines(newCount) {
+  const currentLines = [...quoteData.lines];
+  const newLines = [];
+  
+  for (let i = 0; i < newCount; i++) {
+    if (currentLines[i]) {
+      newLines.push(currentLines[i]); // Keep existing
+    } else {
+      // Pad with blank row
+      newLines.push({ desc: '', origin: '', qty: '', price: '' });
+    }
   }
+  
+  quoteData.lines = newLines;
+  renderItemTable();
+  calculateTotals();
+}
 
-  // Setup table input listeners
+// Renders rows in the preview table using text input fields for easy typing
+function renderItemTable() {
+  DOM.itemsBody.innerHTML = '';
+  
+  quoteData.lines.forEach((line, idx) => {
+    const row = document.createElement('tr');
+    
+    // Note: inputs are type="text" to allow normal keyboard inputs without arrows blocking
+    row.innerHTML = `
+      <td colspan="2"><input type="text" class="desc-input text-trebuchet" value="${line.desc}" placeholder="Item description..."></td>
+      <td class="center-align"><input type="text" class="origin-input text-trebuchet text-center" value="${line.origin}" placeholder="Origin..."></td>
+      <td class="center-align"><input type="text" class="qty-input num-input text-trebuchet text-center" value="${line.qty}" placeholder="-"></td>
+      <td class="center-align"><input type="text" class="price-input num-input text-trebuchet text-center" value="${line.price}" placeholder="-"></td>
+      <td class="amount-cell text-trebuchet amount-val" id="amount-${idx}">0.00</td>
+    `;
+    
+    DOM.itemsBody.appendChild(row);
+  });
+
   setupTableListeners();
+  
+  // Update all amounts on sheet
+  quoteData.lines.forEach((_, i) => {
+    calculateRowAmount(i);
+  });
 }
 
 // Load default terms
@@ -361,7 +385,6 @@ function resetTermsToDefault(defaultTerms) {
   DOM.termsList.innerHTML = '';
   quoteData.terms = [...defaultTerms];
   
-  // Fill terms
   for (let i = 0; i < 3; i++) {
     const val = quoteData.terms[i] || '';
     const item = document.createElement('div');
@@ -369,7 +392,6 @@ function resetTermsToDefault(defaultTerms) {
     item.contentEditable = 'true';
     item.textContent = val;
     
-    // Bind change
     item.addEventListener('blur', (e) => {
       quoteData.terms[i] = e.target.textContent;
     });
@@ -378,7 +400,7 @@ function resetTermsToDefault(defaultTerms) {
   }
 }
 
-// Set listeners on dynamically created inputs inside preview table
+// Set listeners on inputs inside preview table
 function setupTableListeners() {
   const rows = DOM.itemsBody.querySelectorAll('tr');
   rows.forEach((row, idx) => {
@@ -390,8 +412,17 @@ function setupTableListeners() {
     const updateState = () => {
       quoteData.lines[idx].desc = descInput.value;
       quoteData.lines[idx].origin = originInput.value;
-      quoteData.lines[idx].qty = qtyInput.value;
-      quoteData.lines[idx].price = priceInput.value;
+      
+      // Clean inputs: allow only numbers, dots, and common floats
+      let qtyVal = qtyInput.value.replace(/[^0-9.]/g, '');
+      let priceVal = priceInput.value.replace(/[^0-9.]/g, '');
+      
+      // Update fields if they typed invalid characters
+      if (qtyInput.value !== qtyVal) qtyInput.value = qtyVal;
+      if (priceInput.value !== priceVal) priceInput.value = priceVal;
+      
+      quoteData.lines[idx].qty = qtyVal;
+      quoteData.lines[idx].price = priceVal;
       
       calculateRowAmount(idx);
     };
@@ -416,8 +447,6 @@ function calculateRowAmount(idx) {
   } else {
     amountCell.textContent = '0.00';
   }
-  
-  calculateTotals();
 }
 
 // Calculate subtotal, VAT, and total
@@ -436,12 +465,12 @@ function calculateTotals() {
     if (quoteData.vatIncluded) {
       // VAT is already included in prices: total = subtotal
       vatAmount = subtotal - (subtotal / (1 + quoteData.vatRate / 100));
-      DOM.vatCalcRow.style.display = 'none'; // Hide separate row since it's included
+      DOM.vatCalcRow.style.display = 'none';
     } else {
       // VAT needs to be added: total = subtotal + vat
       vatAmount = subtotal * (quoteData.vatRate / 100);
       total = subtotal + vatAmount;
-      DOM.vatCalcRow.style.display = 'table-row'; // Show separate row
+      DOM.vatCalcRow.style.display = 'table-row';
     }
   } else {
     DOM.vatCalcRow.style.display = 'none';
@@ -454,11 +483,9 @@ function calculateTotals() {
 
 // Reset current quote to default blanks
 function resetQuote(divId) {
-  const confirmReset = confirm("Are you sure you want to create a new quote? Unsaved changes will be lost.");
+  const confirmReset = confirm("Are you sure you want to initialize a new quote? Current entries will be cleared.");
   if (!confirmReset) return;
 
-  quoteData.id = ''; // clear database ID
-  
   const nextNo = 'Q' + Math.floor(100000 + Math.random() * 900000);
   quoteData.quoteNo = nextNo;
   DOM.inputQuoteNo.value = nextNo;
@@ -484,254 +511,12 @@ function resetQuote(divId) {
   DOM.sheetDate.value = quoteData.date;
   DOM.sheetValidUntil.value = quoteData.validUntil;
   DOM.inputValidity.value = 3;
+  
+  quoteData.itemCount = 12;
+  DOM.inputItemCount.value = 12;
 
   switchDivision(divId);
-  showToast("New quote initialized.");
-}
-
-// LocalStorage database actions
-function saveCurrentQuote() {
-  let quotes = JSON.parse(localStorage.getItem('awa_quotes') || '[]');
-  
-  const quoteToSave = {
-    ...quoteData,
-    division: currentDiv,
-    lastModified: new Date().toISOString()
-  };
-
-  // If new quote, generate ID
-  if (!quoteToSave.id) {
-    quoteToSave.id = 'quote_' + Date.now();
-    quoteData.id = quoteToSave.id;
-    quotes.push(quoteToSave);
-  } else {
-    // Edit existing
-    const idx = quotes.findIndex(q => q.id === quoteToSave.id);
-    if (idx !== -1) {
-      quotes[idx] = quoteToSave;
-    } else {
-      quotes.push(quoteToSave);
-    }
-  }
-
-  localStorage.setItem('awa_quotes', JSON.stringify(quotes));
-  showToast("Quote saved successfully.");
-  loadQuotesList();
-}
-
-function loadQuotesList() {
-  const query = DOM.searchQuotes.value.toLowerCase();
-  let quotes = JSON.parse(localStorage.getItem('awa_quotes') || '[]');
-
-  // Sort by modification date
-  quotes.sort((a, b) => new Date(b.lastModified) - new Date(a.lastModified));
-
-  // Filter
-  if (query) {
-    quotes = quotes.filter(q => 
-      q.customerName.toLowerCase().includes(query) || 
-      q.quoteNo.toLowerCase().includes(query) ||
-      DIVISIONS[q.division].name.toLowerCase().includes(query)
-    );
-  }
-
-  DOM.quotesList.innerHTML = '';
-  
-  if (quotes.length === 0) {
-    DOM.quotesList.innerHTML = '<div class="empty-state">No saved quotes found.</div>';
-    return;
-  }
-
-  quotes.forEach((q) => {
-    const item = document.createElement('div');
-    item.className = 'quote-item';
-    
-    // Sum total
-    let subtotal = 0;
-    q.lines.forEach((line) => {
-      const qty = parseFloat(line.qty) || 0;
-      const price = parseFloat(line.price) || 0;
-      subtotal += qty * price;
-    });
-    
-    let total = subtotal;
-    if (q.vatRate > 0 && !q.vatIncluded) {
-      total = subtotal * (1 + q.vatRate/100);
-    }
-
-    item.innerHTML = `
-      <div class="quote-item-header">
-        <span>${q.customerName === '[Company Name]' ? 'Draft Quote' : q.customerName}</span>
-        <span>#${q.quoteNo}</span>
-      </div>
-      <div class="quote-item-div ${q.division}">${DIVISIONS[q.division].name}</div>
-      <div class="quote-item-details">
-        <span>${new Date(q.date).toLocaleDateString()}</span>
-        <strong style="color:#fff">${total.toLocaleString('en-US', {minimumFractionDigits:2, maximumFractionDigits:2})} ${q.currency}</strong>
-      </div>
-      <div class="quote-item-actions">
-        <button class="btn-icon btn-load" title="Load Quote">
-          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"></path><path d="M18.5 2.5a2.121 2.121 0 1 1 3 3L12 15l-4 1 1-4z"></path></svg>
-        </button>
-        <button class="btn-icon btn-duplicate" title="Duplicate Quote">
-          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path></svg>
-        </button>
-        <button class="btn-icon delete btn-delete" title="Delete Quote">
-          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="3 6 5 6 21 6"></polyline><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path><line x1="10" y1="11" x2="10" y2="17"></line><line x1="14" y1="11" x2="14" y2="17"></line></svg>
-        </button>
-      </div>
-    `;
-
-    // Hook events
-    item.querySelector('.btn-load').addEventListener('click', (e) => {
-      e.stopPropagation();
-      loadQuote(q.id);
-    });
-
-    item.querySelector('.btn-duplicate').addEventListener('click', (e) => {
-      e.stopPropagation();
-      duplicateQuote(q.id);
-    });
-
-    item.querySelector('.btn-delete').addEventListener('click', (e) => {
-      e.stopPropagation();
-      deleteQuote(q.id);
-    });
-
-    item.addEventListener('click', () => loadQuote(q.id));
-
-    DOM.quotesList.appendChild(item);
-  });
-}
-
-function loadQuote(id) {
-  const quotes = JSON.parse(localStorage.getItem('awa_quotes') || '[]');
-  const q = quotes.find(item => item.id === id);
-  if (!q) return;
-
-  // Set active state
-  quoteData = { ...q };
-
-  // Set active division
-  currentDiv = q.division;
-  const config = DIVISIONS[currentDiv];
-  document.documentElement.style.setProperty('--brand-navy', config.themeColor);
-  DOM.sheetLogo.src = config.logo;
-  DOM.companyAddress.textContent = config.address;
-  DOM.companyWebsite.textContent = config.website;
-  DOM.companyPhone.textContent = config.phone;
-  DOM.companyFax.textContent = config.fax;
-
-  // Set selectors active class
-  DOM.divSelectors.forEach(btn => {
-    if (btn.getAttribute('data-div') === currentDiv) {
-      btn.classList.add('active');
-    } else {
-      btn.classList.remove('active');
-    }
-  });
-
-  // Sync inputs
-  DOM.inputPreparedBy.value = q.preparedBy;
-  DOM.sheetPreparedBy.textContent = q.preparedBy;
-
-  DOM.inputQuoteNo.value = q.quoteNo;
-  DOM.sheetQuoteNo.textContent = q.quoteNo;
-
-  DOM.inputCustomerId.value = q.customerId;
-  DOM.sheetCustomerId.textContent = q.customerId;
-
-  DOM.inputCurrency.value = q.currency;
-  DOM.sheetCurrency.textContent = q.currency;
-
-  DOM.inputValidity.value = q.validityDays;
-  DOM.sheetDate.value = q.date;
-  DOM.sheetValidUntil.value = q.validUntil;
-
-  DOM.inputVat.value = q.vatRate;
-  DOM.sheetVatPercent.textContent = q.vatRate;
-  DOM.checkboxVatIncluded.checked = q.vatIncluded;
-
-  // Customer details
-  DOM.sheetCustomerName.textContent = q.customerName;
-  DOM.sheetCustomerContact.textContent = q.customerContact;
-  DOM.sheetCustomerPhone.textContent = q.customerPhone;
-
-  // Terms and footer
-  DOM.sheetFooterContact.textContent = q.footerContact;
-  DOM.sheetFooterThanks.textContent = q.footerThanks;
-
-  // Load items
-  DOM.itemsBody.innerHTML = '';
-  q.lines.forEach((line, i) => {
-    const row = document.createElement('tr');
-    row.innerHTML = `
-      <td colspan="2"><input type="text" class="desc-input text-trebuchet" value="${line.desc}" placeholder="Item description..."></td>
-      <td class="center-align"><input type="text" class="origin-input text-trebuchet text-center" value="${line.origin}" placeholder="Origin..."></td>
-      <td class="center-align"><input type="number" class="qty-input num-input text-trebuchet text-center" value="${line.qty}" min="0" step="any" placeholder="-"></td>
-      <td class="center-align"><input type="number" class="price-input num-input text-trebuchet text-center" value="${line.price}" min="0" step="any" placeholder="-"></td>
-      <td class="amount-cell text-trebuchet amount-val" id="amount-${i}">0.00</td>
-    `;
-    DOM.itemsBody.appendChild(row);
-  });
-  setupTableListeners();
-
-  // Load terms
-  DOM.termsList.innerHTML = '';
-  for (let i = 0; i < 3; i++) {
-    const val = q.terms[i] || '';
-    const item = document.createElement('div');
-    item.className = 'terms-item';
-    item.contentEditable = 'true';
-    item.textContent = val;
-    item.addEventListener('blur', (e) => {
-      quoteData.terms[i] = e.target.textContent;
-    });
-    DOM.termsList.appendChild(item);
-  }
-
-  // Calculate totals
-  q.lines.forEach((line, i) => {
-    calculateRowAmount(i);
-  });
-
-  showToast(`Quote #${q.quoteNo} loaded.`);
-}
-
-function duplicateQuote(id) {
-  const quotes = JSON.parse(localStorage.getItem('awa_quotes') || '[]');
-  const q = quotes.find(item => item.id === id);
-  if (!q) return;
-
-  const duplicated = {
-    ...q,
-    id: 'quote_' + Date.now(),
-    quoteNo: q.quoteNo + '-COPY',
-    lastModified: new Date().toISOString()
-  };
-
-  quotes.push(duplicated);
-  localStorage.setItem('awa_quotes', JSON.stringify(quotes));
-  showToast("Quote duplicated.");
-  loadQuotesList();
-}
-
-function deleteQuote(id) {
-  const confirmDelete = confirm("Are you sure you want to delete this quote?");
-  if (!confirmDelete) return;
-
-  let quotes = JSON.parse(localStorage.getItem('awa_quotes') || '[]');
-  quotes = quotes.filter(item => item.id !== id);
-  
-  localStorage.setItem('awa_quotes', JSON.stringify(quotes));
-  
-  // If current quote was deleted, reset state
-  if (quoteData.id === id) {
-    quoteData.id = '';
-  }
-  
-  showToast("Quote deleted.");
-  loadQuotesList();
+  showToast("Quotation sheet reset.");
 }
 
 // Convert image to base64
@@ -748,11 +533,25 @@ async function getBase64FromUrl(url) {
   });
 }
 
-// EXCEL EXPORTING LOGIC USING EXCELJS
+// EXCEL EXPORTING LOGIC USING EXCELJS (with dynamic offsets)
 async function exportToExcel() {
   const config = DIVISIONS[currentDiv];
   showToast("Exporting Excel...");
   
+  const N = quoteData.lines.length;
+  
+  // Calculate dynamic rows offsets
+  const itemStartRow = 17;
+  const itemEndRow = 17 + N - 1;
+  const subtotalRow = 17 + N;
+  const termsHeaderRow = 17 + N + 1;
+  const termsLine1 = 17 + N + 2;
+  const termsLine2 = 17 + N + 3;
+  const termsLine3 = 17 + N + 4;
+  const totalRow = 17 + N + 5;
+  const footerContactRow = 17 + N + 11;
+  const footerThanksRow = 17 + N + 13;
+
   try {
     const workbook = new ExcelJS.Workbook();
     const sheet = workbook.addWorksheet(config.sheetName);
@@ -789,14 +588,13 @@ async function exportToExcel() {
       bottom: { style: 'thin', color: { indexed: 64 } }
     };
     const borderThinLeft = { left: { style: 'thin', color: { indexed: 64 } } };
-    const borderThinRight = { right: { style: 'thin', color: { indexed: 64 } } };
 
-    // --- Row heights & Merges ---
+    // Row heights
     sheet.getRow(1).height = 72;
     sheet.mergeCells('E1:F1');
     const qCell = sheet.getCell('E1');
     qCell.value = 'QUOTATION';
-    qCell.font = { name: 'Arial', size: 24, bold: true, color: { argb: 'FF8699C2' } }; // Lightened Navy
+    qCell.font = { name: 'Arial', size: 24, bold: true, color: { argb: 'FF8699C2' } };
     qCell.alignment = alignRight;
 
     // Insert Image
@@ -807,7 +605,7 @@ async function exportToExcel() {
         extension: 'png'
       });
       sheet.addImage(logoId, {
-        tl: { col: 0.1, row: 1 }, // top-left position A2
+        tl: { col: 0.1, row: 1 },
         ext: { width: 220, height: 50 }
       });
     } catch (e) {
@@ -824,7 +622,6 @@ async function exportToExcel() {
     sheet.getCell('E3').alignment = alignRight;
     
     const dCell = sheet.getCell('F3');
-    // Date formats
     dCell.value = new Date(quoteData.date);
     dCell.numFmt = 'yyyy-mm-dd';
     dCell.font = fontTrebuchet;
@@ -871,7 +668,6 @@ async function exportToExcel() {
     sheet.getCell('E6').alignment = alignRight;
     
     const vuCell = sheet.getCell('F6');
-    // Save formula as template F3 + validityDays
     vuCell.value = { formula: `F3+${quoteData.validityDays}` };
     vuCell.numFmt = 'yyyy-mm-dd';
     vuCell.font = fontTrebuchet;
@@ -891,7 +687,7 @@ async function exportToExcel() {
     custHeader.fill = fillNavy;
     custHeader.alignment = alignLeft;
 
-    // Customer info Rows 10-12
+    // Customer details Rows 10-12
     sheet.getCell('A10').value = quoteData.customerName;
     sheet.getCell('A10').font = { name: 'Trebuchet MS', size: 10, color: { argb: 'FF101010' } };
     sheet.getCell('A10').alignment = alignLeft;
@@ -942,10 +738,10 @@ async function exportToExcel() {
       }
     });
 
-    // Rows 17-28: Table Rows
-    for (let i = 0; i < 12; i++) {
-      const rNum = 17 + i;
-      const line = quoteData.lines[i] || { desc: '', origin: '', qty: '', price: '' };
+    // Rows 17 to (17+N-1): Table Rows
+    for (let i = 0; i < N; i++) {
+      const rNum = itemStartRow + i;
+      const line = quoteData.lines[i];
       
       sheet.mergeCells(`A${rNum}:B${rNum}`);
       const descCell = sheet.getCell(`A${rNum}`);
@@ -983,24 +779,24 @@ async function exportToExcel() {
       amtCell.numFmt = '#,##0.00';
     }
 
-    // Row 29: Subtotal
-    sheet.getRow(29).height = 14.25;
-    sheet.getCell('E29').value = 'Subtotal';
-    sheet.getCell('E29').font = fontTrebuchet;
-    sheet.getCell('E29').alignment = alignLeft;
-    sheet.getCell('E29').border = { top: { style: 'thin' } };
+    // Row: Subtotal
+    sheet.getRow(subtotalRow).height = 14.25;
+    sheet.getCell(`E${subtotalRow}`).value = 'Subtotal';
+    sheet.getCell(`E${subtotalRow}`).font = fontTrebuchet;
+    sheet.getCell(`E${subtotalRow}`).alignment = alignLeft;
+    sheet.getCell(`E${subtotalRow}`).border = { top: { style: 'thin' } };
 
-    const subValCell = sheet.getCell('F29');
-    subValCell.value = { formula: 'SUM(F17:F28)' };
+    const subValCell = sheet.getCell(`F${subtotalRow}`);
+    subValCell.value = { formula: `SUM(F${itemStartRow}:F${itemEndRow})` };
     subValCell.font = fontTrebuchet;
     subValCell.alignment = alignRight;
     subValCell.border = { top: { style: 'thin' } };
     subValCell.numFmt = '#,##0.00';
 
-    // Terms and Conditions Title Row 30
-    sheet.getRow(30).height = 14.25;
-    sheet.mergeCells('A30:C30');
-    const termsTitle = sheet.getCell('A30');
+    // Row: Terms & Conditions Title
+    sheet.getRow(termsHeaderRow).height = 14.25;
+    sheet.mergeCells(`A${termsHeaderRow}:C${termsHeaderRow}`);
+    const termsTitle = sheet.getCell(`A${termsHeaderRow}`);
     termsTitle.value = 'TERMS AND CONDITIONS';
     termsTitle.font = { name: 'Arial', size: 10, bold: true, color: { argb: 'FFFFFFFF' } };
     termsTitle.fill = fillNavy;
@@ -1011,66 +807,65 @@ async function exportToExcel() {
       bottom: { style: 'thin', color: { argb: 'FF3B4E87' } }
     };
 
-    // Fill Terms Rows 31-33
-    for (let i = 0; i < 3; i++) {
-      const rNum = 31 + i;
+    // Terms Lines (3 rows)
+    const termsRows = [termsLine1, termsLine2, termsLine3];
+    termsRows.forEach((rNum, idx) => {
       sheet.mergeCells(`A${rNum}:C${rNum}`);
       const tCell = sheet.getCell(`A${rNum}`);
-      tCell.value = quoteData.terms[i] || '';
+      tCell.value = quoteData.terms[idx] || '';
       tCell.font = fontTrebuchet;
       tCell.alignment = alignLeft;
-    }
+    });
 
-    // Handle VAT Separate Row (if checked and separate)
-    let totalFormula = 'F29';
+    // Handle VAT calculation in Excel sheet E/F columns (on termsHeaderRow)
+    let totalFormula = `F${subtotalRow}`;
     if (quoteData.vatRate > 0 && !quoteData.vatIncluded) {
-      // Put VAT in Row 30 (but col E/F which are free!)
-      sheet.getCell('E30').value = `VAT (${quoteData.vatRate}%)`;
-      sheet.getCell('E30').font = fontTrebuchet;
-      sheet.getCell('E30').alignment = alignLeft;
+      sheet.getCell(`E${termsHeaderRow}`).value = `VAT (${quoteData.vatRate}%)`;
+      sheet.getCell(`E${termsHeaderRow}`).font = fontTrebuchet;
+      sheet.getCell(`E${termsHeaderRow}`).alignment = alignLeft;
 
-      const vatValCell = sheet.getCell('F30');
-      vatValCell.value = { formula: `F29*(${quoteData.vatRate}/100)` };
+      const vatValCell = sheet.getCell(`F${termsHeaderRow}`);
+      vatValCell.value = { formula: `F${subtotalRow}*(${quoteData.vatRate}/100)` };
       vatValCell.font = fontTrebuchet;
       vatValCell.alignment = alignRight;
       vatValCell.numFmt = '#,##0.00';
       
-      totalFormula = 'F29+F30';
+      totalFormula = `F${subtotalRow}+F${termsHeaderRow}`;
     }
 
-    // Row 34: TOTAL
-    sheet.getRow(34).height = 15.0;
-    sheet.getCell('E34').value = 'TOTAL';
-    sheet.getCell('E34').font = { name: 'Trebuchet MS', size: 11, bold: true, color: { argb: 'FF101010' } };
-    sheet.getCell('E34').alignment = alignLeft;
+    // Row: TOTAL
+    sheet.getRow(totalRow).height = 15.0;
+    sheet.getCell(`E${totalRow}`).value = 'TOTAL';
+    sheet.getCell(`E${totalRow}`).font = { name: 'Trebuchet MS', size: 11, bold: true, color: { argb: 'FF101010' } };
+    sheet.getCell(`E${totalRow}`).alignment = alignLeft;
 
-    const totValCell = sheet.getCell('F34');
+    const totValCell = sheet.getCell(`F${totalRow}`);
     totValCell.value = { formula: totalFormula };
     totValCell.font = fontTrebuchetBold;
     totValCell.alignment = alignRight;
-    totValCell.fill = { type: 'pattern', pattern: 'solid', fgColor: { argb: 'FFD8DCE7' } }; // Light blue fill
+    totValCell.fill = { type: 'pattern', pattern: 'solid', fgColor: { argb: 'FFD8DCE7' } };
     totValCell.border = {
       top: { style: 'thin' },
       bottom: { style: 'double' }
     };
     totValCell.numFmt = '#,##0.00';
 
-    // Row 40: closing contact note
-    sheet.mergeCells('A40:F40');
-    const fContact = sheet.getCell('A40');
+    // Row: Closing contact note
+    sheet.mergeCells(`A${footerContactRow}:F${footerContactRow}`);
+    const fContact = sheet.getCell(`A${footerContactRow}`);
     fContact.value = quoteData.footerContact;
     fContact.font = { name: 'Trebuchet MS', size: 10, color: { argb: 'FF101010' } };
     fContact.alignment = alignCenter;
 
-    // Row 42: Thank you
-    sheet.getRow(42).height = 15.75;
-    sheet.mergeCells('A42:F42');
-    const fThanks = sheet.getCell('A42');
+    // Row: Thank you business
+    sheet.getRow(footerThanksRow).height = 15.75;
+    sheet.mergeCells(`A${footerThanksRow}:F${footerThanksRow}`);
+    const fThanks = sheet.getCell(`A${footerThanksRow}`);
     fThanks.value = quoteData.footerThanks;
     fThanks.font = { name: 'Trebuchet MS', size: 12, bold: true, italic: true, color: { argb: 'FF101010' } };
     fThanks.alignment = alignCenter;
 
-    // Generate buffer & trigger download
+    // Save Buffer & download
     const buffer = await workbook.xlsx.writeBuffer();
     const blob = new Blob([buffer], { type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet' });
     const url = window.URL.createObjectURL(blob);

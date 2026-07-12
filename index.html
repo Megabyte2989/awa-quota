@@ -11,11 +11,11 @@
 </head>
 <body>
   <div class="app-container">
-    <!-- Web UI Sidebar: Control Panel & Dashboard -->
+    <!-- Web UI Sidebar: Control Panel -->
     <aside class="sidebar no-print">
       <div class="sidebar-header">
         <h2>AWA QUOTA</h2>
-        <span class="badge">v1.0</span>
+        <span class="badge">v1.1</span>
       </div>
 
       <div class="sidebar-section">
@@ -59,9 +59,15 @@
             <input type="number" id="input-validity" value="3">
           </div>
         </div>
-        <div class="form-group">
-          <label for="input-vat">VAT Rate (%)</label>
-          <input type="number" id="input-vat" value="14" min="0" max="100">
+        <div class="form-row">
+          <div class="form-group">
+            <label for="input-vat">VAT Rate (%)</label>
+            <input type="number" id="input-vat" value="14" min="0" max="100">
+          </div>
+          <div class="form-group">
+            <label for="input-item-count">Number of Items</label>
+            <input type="number" id="input-item-count" value="12" min="1" max="30">
+          </div>
         </div>
         <div class="form-checkbox">
           <input type="checkbox" id="checkbox-vat-included" checked>
@@ -72,10 +78,6 @@
       <div class="sidebar-section">
         <h3>3. Actions</h3>
         <div class="actions-grid">
-          <button id="btn-save" class="btn btn-primary">
-            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"></path><polyline points="17 21 17 13 7 13 7 21"></polyline><polyline points="7 3 7 8 15 8"></polyline></svg>
-            Save Quote
-          </button>
           <button id="btn-new" class="btn btn-secondary">
             <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="12" y1="5" x2="12" y2="19"></line><line x1="5" y1="12" x2="19" y2="12"></line></svg>
             New Quote
@@ -90,21 +92,10 @@
           </button>
         </div>
       </div>
-
-      <div class="sidebar-section history-section">
-        <h3>4. Saved Quotes</h3>
-        <div class="search-box">
-          <input type="text" id="search-quotes" placeholder="Search by customer...">
-        </div>
-        <div class="quotes-list" id="quotes-list">
-          <div class="empty-state">No saved quotes yet.</div>
-        </div>
-      </div>
     </aside>
 
     <!-- Main Content Area: Excel A4 Sheet Preview -->
     <main class="preview-area">
-      <!-- Outer container that enforces A4 dimensions for printing/previewing -->
       <div class="a4-sheet" id="printable-area">
         <!-- Division Branding Header -->
         <div class="sheet-header">
@@ -179,7 +170,7 @@
             </tr>
           </thead>
           <tbody id="items-body">
-            <!-- 12 Rows will be generated dynamically by JS to enable clean indexing and editing -->
+            <!-- Dynamic rows -->
           </tbody>
           <tfoot>
             <tr class="subtotal-row">
@@ -205,8 +196,6 @@
           <div class="terms-header text-arial font-bold border-all-theme">TERMS AND CONDITIONS</div>
           <div class="terms-content text-trebuchet" id="terms-list">
             <!-- Default terms or custom terms -->
-            <div class="terms-item" contenteditable="true">1.The above price including vat 14%</div>
-            <div class="terms-item" contenteditable="true">2.Quotation validity /  2days from the quotation's date.</div>
           </div>
         </div>
 
@@ -220,7 +209,7 @@
   </div>
 
   <!-- Notification Banner -->
-  <div id="toast" class="toast">Quote saved successfully!</div>
+  <div id="toast" class="toast">Action completed!</div>
 
   <script type="module" src="/src/main.js"></script>
 </body>

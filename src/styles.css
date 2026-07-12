@@ -1,13 +1,13 @@
 /* Root Variables & General Reset */
 :root {
-  --bg-primary: #121318;
-  --bg-secondary: #1a1c23;
-  --bg-tertiary: #232731;
-  --text-main: #f0f2f5;
-  --text-muted: #9fa6b2;
+  --bg-primary: #f1f5f9; /* Slate-100 */
+  --bg-secondary: #ffffff; /* White */
+  --bg-tertiary: #f8fafc; /* Slate-50 */
+  --text-main: #0f172a; /* Slate-900 */
+  --text-muted: #64748b; /* Slate-500 */
   --accent-color: #3B4E87; /* Excel Theme Accent 1 */
-  --accent-hover: #4e64a1;
-  --border-color: #2e3543;
+  --accent-hover: #2f3e6c; /* Darker Brand Navy */
+  --border-color: #cbd5e1; /* Slate-300 */
   
   /* Excel Brand Palette Colors */
   --brand-navy: #3B4E87;
@@ -15,9 +15,9 @@
   --excel-blue-fill: #D8DCE7;
   --excel-text-dark: #101010;
   
-  --shadow-sm: 0 2px 4px rgba(0, 0, 0, 0.1);
-  --shadow-md: 0 4px 12px rgba(0, 0, 0, 0.15);
-  --shadow-lg: 0 10px 25px rgba(0, 0, 0, 0.2);
+  --shadow-sm: 0 1px 3px rgba(0, 0, 0, 0.05);
+  --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+  --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
   
   --transition-fast: 0.2s ease;
 }
@@ -46,7 +46,7 @@ body {
   background: var(--bg-secondary);
 }
 ::-webkit-scrollbar-thumb {
-  background: var(--bg-tertiary);
+  background: var(--bg-primary);
   border-radius: 3px;
 }
 ::-webkit-scrollbar-thumb:hover {
@@ -112,7 +112,7 @@ body {
   font-size: 1.25rem;
   font-weight: 700;
   letter-spacing: 1px;
-  background: linear-gradient(135deg, #fff 0%, var(--text-muted) 100%);
+  background: linear-gradient(135deg, var(--accent-color) 0%, #1e293b 100%);
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
 }
@@ -162,14 +162,15 @@ body {
 }
 
 .btn-div:hover {
-  background-color: var(--border-color);
+  background-color: var(--bg-primary);
   border-color: var(--text-muted);
 }
 
 .btn-div.active {
   background-color: var(--accent-color);
   border-color: var(--accent-hover);
-  box-shadow: 0 0 12px rgba(59, 78, 135, 0.4);
+  color: #ffffff;
+  box-shadow: 0 4px 10px rgba(59, 78, 135, 0.25);
 }
 
 .dot {
@@ -199,9 +200,11 @@ body {
 .form-group label {
   font-size: 0.75rem;
   color: var(--text-muted);
+  font-weight: 500;
 }
 
-.form-group input {
+.form-group input,
+.form-group select {
   background-color: var(--bg-tertiary);
   border: 1px solid var(--border-color);
   color: var(--text-main);
@@ -210,11 +213,13 @@ body {
   font-size: 0.9rem;
   font-family: inherit;
   outline: none;
-  transition: border-color var(--transition-fast);
+  transition: border-color var(--transition-fast), box-shadow var(--transition-fast);
 }
 
-.form-group input:focus {
-  border-color: var(--accent-hover);
+.form-group input:focus,
+.form-group select:focus {
+  border-color: var(--accent-color);
+  box-shadow: 0 0 0 2px rgba(59, 78, 135, 0.1);
 }
 
 /* Hide spin-buttons for all numeric fields and inputs */

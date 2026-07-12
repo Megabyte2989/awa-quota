@@ -69,6 +69,24 @@
             <input type="number" id="input-item-count" value="12" min="1" max="30">
           </div>
         </div>
+        <div class="form-row">
+          <div class="form-group">
+            <label for="input-unit">Measurement Unit</label>
+            <select id="input-unit">
+              <option value="kg">kg</option>
+              <option value="liter">liter</option>
+              <option value="pack">pack</option>
+              <option value="pc">pc</option>
+              <option value="bag">bag</option>
+              <option value="drum">drum</option>
+              <option value="custom">Custom...</option>
+            </select>
+          </div>
+          <div class="form-group" id="custom-unit-group" style="display: none;">
+            <label for="input-custom-unit">Custom Unit Name</label>
+            <input type="text" id="input-custom-unit" placeholder="ex. box">
+          </div>
+        </div>
         <div class="form-checkbox">
           <input type="checkbox" id="checkbox-vat-included">
           <label for="checkbox-vat-included">Prices Include VAT</label>
@@ -164,8 +182,8 @@
             <tr>
               <th colspan="2" class="text-arial font-bold text-left border-thin width-desc">DESCRIPTION</th>
               <th class="text-arial font-bold text-center border-thin width-origin">Origin</th>
-              <th class="text-arial font-bold text-center border-thin width-qty">QTY/kg</th>
-              <th class="text-arial font-bold text-center border-thin width-price">Price/kg</th>
+              <th class="text-arial font-bold text-center border-thin width-qty" id="header-qty">QTY/kg</th>
+              <th class="text-arial font-bold text-center border-thin width-price" id="header-price">Price/kg</th>
               <th class="text-arial font-bold text-center border-thin width-amount">AMOUNT</th>
             </tr>
           </thead>

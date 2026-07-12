@@ -75,6 +75,7 @@ let quoteData = {
   vatRate: 14,
   vatIncluded: false,
   itemCount: 12,
+  unit: 'kg',
   customerName: '[Company Name]',
   customerContact: '[contact name]',
   customerPhone: '[Phone]',
@@ -97,6 +98,11 @@ const DOM = {
   inputValidity: document.getElementById('input-validity'),
   inputVat: document.getElementById('input-vat'),
   inputItemCount: document.getElementById('input-item-count'),
+  inputUnit: document.getElementById('input-unit'),
+  customUnitGroup: document.getElementById('custom-unit-group'),
+  inputCustomUnit: document.getElementById('input-custom-unit'),
+  headerQty: document.getElementById('header-qty'),
+  headerPrice: document.getElementById('header-price'),
   checkboxVatIncluded: document.getElementById('checkbox-vat-included'),
   btnNew: document.getElementById('btn-new'),
   btnPrint: document.getElementById('btn-print'),
@@ -150,6 +156,7 @@ function init() {
   DOM.inputValidity.value = quoteData.validityDays;
   DOM.inputVat.value = quoteData.vatRate;
   DOM.inputItemCount.value = quoteData.itemCount;
+  DOM.inputUnit.value = quoteData.unit;
   DOM.checkboxVatIncluded.checked = quoteData.vatIncluded;
 
   // Event Listeners for controls
@@ -262,6 +269,35 @@ function setupControlListeners() {
     quoteData.itemCount = count;
     resizeQuoteLines(count);
   });
+
+  // Handle Measurement Unit changes
+  DOM.inputUnit.addEventListener('change', (e) => {
+    updateMeasurementUnit(e.target.value);
+  });
+
+  DOM.inputCustomUnit.addEventListener('input', (e) => {
+    if (DOM.inputUnit.value === 'custom') {
+      updateMeasurementUnit('custom');
+    }
+  });
+}
+
+// Helper to update the measurement unit labels
+function updateMeasurementUnit(unitVal) {
+  if (unitVal === 'custom') {
+    DOM.customUnitGroup.style.display = 'block';
+    const customVal = DOM.inputCustomUnit.value.trim() || 'unit';
+    quoteData.unit = customVal;
+  } else {
+    DOM.customUnitGroup.style.display = 'none';
+    quoteData.unit = unitVal;
+  }
+
+  // Update sheet headers text content
+  if (DOM.headerQty && DOM.headerPrice) {
+    DOM.headerQty.textContent = `QTY/${quoteData.unit}`;
+    DOM.headerPrice.textContent = `Price/${quoteData.unit}`;
+  }
 }
 
 // Setup Event Listeners for Sheet Preview editable texts
@@ -343,6 +379,7 @@ function switchDivision(divId) {
 
   renderItemTable();
   resetTermsToDefault(config.defaultTerms);
+  updateMeasurementUnit(DOM.inputUnit.value);
   calculateTotals();
 }
 
@@ -836,8 +873,8 @@ async function exportToExcel() {
 
     const colHeaders = {
       'C16': 'Origin',
-      'D16': 'QTY/kg',
-      'E16': 'Price/kg',
+      'D16': `QTY/${quoteData.unit}`,
+      'E16': `Price/${quoteData.unit}`,
       'F16': 'AMOUNT'
     };
     

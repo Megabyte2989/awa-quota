@@ -1,0 +1,227 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>AWA Quotation System</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="/src/styles.css">
+</head>
+<body>
+  <div class="app-container">
+    <!-- Web UI Sidebar: Control Panel & Dashboard -->
+    <aside class="sidebar no-print">
+      <div class="sidebar-header">
+        <h2>AWA QUOTA</h2>
+        <span class="badge">v1.0</span>
+      </div>
+
+      <div class="sidebar-section">
+        <h3>1. Select Division</h3>
+        <div class="division-selector">
+          <button class="btn-div active" data-div="add">
+            <span class="dot add"></span> Food Additives
+          </button>
+          <button class="btn-div" data-div="solutions">
+            <span class="dot solutions"></span> Food Solutions
+          </button>
+          <button class="btn-div" data-div="bio">
+            <span class="dot bio"></span> Bio Ingredients
+          </button>
+        </div>
+      </div>
+
+      <div class="sidebar-section">
+        <h3>2. Quote Settings</h3>
+        <div class="form-group">
+          <label for="input-prepared-by">Prepared By</label>
+          <input type="text" id="input-prepared-by" placeholder="Salesperson Name">
+        </div>
+        <div class="form-row">
+          <div class="form-group">
+            <label for="input-quote-no">Quote #</label>
+            <input type="text" id="input-quote-no" placeholder="123456">
+          </div>
+          <div class="form-group">
+            <label for="input-customer-id">Customer ID</label>
+            <input type="text" id="input-customer-id" placeholder="123">
+          </div>
+        </div>
+        <div class="form-row">
+          <div class="form-group">
+            <label for="input-currency">Currency</label>
+            <input type="text" id="input-currency" value="EGP">
+          </div>
+          <div class="form-group">
+            <label for="input-validity">Validity (Days)</label>
+            <input type="number" id="input-validity" value="3">
+          </div>
+        </div>
+        <div class="form-group">
+          <label for="input-vat">VAT Rate (%)</label>
+          <input type="number" id="input-vat" value="14" min="0" max="100">
+        </div>
+        <div class="form-checkbox">
+          <input type="checkbox" id="checkbox-vat-included" checked>
+          <label for="checkbox-vat-included">Prices Include VAT</label>
+        </div>
+      </div>
+
+      <div class="sidebar-section">
+        <h3>3. Actions</h3>
+        <div class="actions-grid">
+          <button id="btn-save" class="btn btn-primary">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"></path><polyline points="17 21 17 13 7 13 7 21"></polyline><polyline points="7 3 7 8 15 8"></polyline></svg>
+            Save Quote
+          </button>
+          <button id="btn-new" class="btn btn-secondary">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="12" y1="5" x2="12" y2="19"></line><line x1="5" y1="12" x2="19" y2="12"></line></svg>
+            New Quote
+          </button>
+          <button id="btn-print" class="btn btn-success">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 6 2 18 2 18 9"></polyline><path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"></path><rect x="6" y="14" width="12" height="8"></rect></svg>
+            Print / PDF
+          </button>
+          <button id="btn-export" class="btn btn-info">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path><polyline points="7 10 12 15 17 10"></polyline><line x1="12" y1="15" x2="12" y2="3"></line></svg>
+            Excel Export
+          </button>
+        </div>
+      </div>
+
+      <div class="sidebar-section history-section">
+        <h3>4. Saved Quotes</h3>
+        <div class="search-box">
+          <input type="text" id="search-quotes" placeholder="Search by customer...">
+        </div>
+        <div class="quotes-list" id="quotes-list">
+          <div class="empty-state">No saved quotes yet.</div>
+        </div>
+      </div>
+    </aside>
+
+    <!-- Main Content Area: Excel A4 Sheet Preview -->
+    <main class="preview-area">
+      <!-- Outer container that enforces A4 dimensions for printing/previewing -->
+      <div class="a4-sheet" id="printable-area">
+        <!-- Division Branding Header -->
+        <div class="sheet-header">
+          <div class="brand-info">
+            <div class="logo-container">
+              <img id="sheet-logo" src="/assets/logo-add.png" alt="AWA Logo">
+            </div>
+            <div class="company-details">
+              <div id="company-address" class="text-trebuchet">243 Horreya Ave, Sportin Alexandria , Egypt</div>
+              <div class="text-trebuchet">Website: <span id="company-website">www.awa-foodadd.net</span></div>
+              <div class="text-trebuchet">Phone: <span id="company-phone">(+203) 4292030 - 4211200</span></div>
+              <div class="text-trebuchet">Fax: <span id="company-fax">+203 4292060</span></div>
+              <div class="text-trebuchet mt-1">Prepared by: <span id="sheet-prepared-by" class="editable-text" contenteditable="true">[salesperson name]</span></div>
+            </div>
+          </div>
+          
+          <div class="quote-title-block">
+            <h1 class="text-arial font-bold">QUOTATION</h1>
+            
+            <table class="meta-table">
+              <tr>
+                <td class="meta-label text-trebuchet">DATE</td>
+                <td class="meta-val text-trebuchet border-thin"><input type="date" id="sheet-date"></td>
+              </tr>
+              <tr>
+                <td class="meta-label text-trebuchet">QUOTE #</td>
+                <td class="meta-val text-trebuchet border-thin font-bold"><span id="sheet-quote-no" class="editable-text" contenteditable="true">123456</span></td>
+              </tr>
+              <tr>
+                <td class="meta-label text-trebuchet">CUSTOMER ID</td>
+                <td class="meta-val text-trebuchet border-thin"><span id="sheet-customer-id" class="editable-text" contenteditable="true">123</span></td>
+              </tr>
+              <tr>
+                <td class="meta-label text-trebuchet">VALID UNTIL</td>
+                <td class="meta-val text-trebuchet border-thin"><input type="date" id="sheet-valid-until"></td>
+              </tr>
+            </table>
+          </div>
+        </div>
+
+        <!-- Customer Bill To Info -->
+        <div class="customer-section">
+          <div class="customer-header text-arial font-bold">CUSTOMER</div>
+          <div class="customer-details text-trebuchet">
+            <div class="customer-row">
+              <span id="sheet-customer-name" class="editable-text block-edit font-bold" contenteditable="true">[Company Name]</span>
+            </div>
+            <div class="customer-row">
+              <span id="sheet-customer-contact" class="editable-text block-edit" contenteditable="true">[contact name]</span>
+            </div>
+            <div class="customer-row">
+              <span id="sheet-customer-phone" class="editable-text block-edit" contenteditable="true">[Phone]</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Currency Row -->
+        <div class="currency-row">
+          <div class="currency-header text-arial font-bold">Currency</div>
+          <div class="currency-val text-trebuchet font-bold"><span id="sheet-currency" class="editable-text" contenteditable="true">EGP</span></div>
+        </div>
+
+        <!-- Main Items Table -->
+        <table class="items-table border-thin">
+          <thead>
+            <tr>
+              <th colspan="2" class="text-arial font-bold text-left border-thin width-desc">DESCRIPTION</th>
+              <th class="text-arial font-bold text-center border-thin width-origin">Origin</th>
+              <th class="text-arial font-bold text-center border-thin width-qty">QTY/kg</th>
+              <th class="text-arial font-bold text-center border-thin width-price">Price/kg</th>
+              <th class="text-arial font-bold text-center border-thin width-amount">AMOUNT</th>
+            </tr>
+          </thead>
+          <tbody id="items-body">
+            <!-- 12 Rows will be generated dynamically by JS to enable clean indexing and editing -->
+          </tbody>
+          <tfoot>
+            <tr class="subtotal-row">
+              <td colspan="3" class="no-border"></td>
+              <td colspan="2" class="text-trebuchet text-right border-top-thin">Subtotal</td>
+              <td class="text-trebuchet text-right border-top-thin" id="sheet-subtotal">0.00</td>
+            </tr>
+            <tr class="vat-row" id="vat-calc-row">
+              <td colspan="3" class="no-border"></td>
+              <td colspan="2" class="text-trebuchet text-right">VAT (<span id="sheet-vat-percent">14</span>%)</td>
+              <td class="text-trebuchet text-right" id="sheet-vat-amount">0.00</td>
+            </tr>
+            <tr class="total-row">
+              <td colspan="3" class="no-border"></td>
+              <td colspan="2" class="text-trebuchet font-bold text-right">TOTAL</td>
+              <td class="text-trebuchet font-bold text-right border-double" id="sheet-total">0.00</td>
+            </tr>
+          </tfoot>
+        </table>
+
+        <!-- Terms and Conditions Section -->
+        <div class="terms-section">
+          <div class="terms-header text-arial font-bold border-all-theme">TERMS AND CONDITIONS</div>
+          <div class="terms-content text-trebuchet" id="terms-list">
+            <!-- Default terms or custom terms -->
+            <div class="terms-item" contenteditable="true">1.The above price including vat 14%</div>
+            <div class="terms-item" contenteditable="true">2.Quotation validity /  2days from the quotation's date.</div>
+          </div>
+        </div>
+
+        <!-- Closing Footer Section -->
+        <div class="sheet-footer text-trebuchet">
+          <p id="sheet-footer-contact" class="text-center" contenteditable="true">If you have any questions about this price quote, please contact</p>
+          <p id="sheet-footer-thanks" class="text-center font-bold font-italic mt-2" contenteditable="true">Thank You For Your Business!</p>
+        </div>
+      </div>
+    </main>
+  </div>
+
+  <!-- Notification Banner -->
+  <div id="toast" class="toast">Quote saved successfully!</div>
+
+  <script type="module" src="/src/main.js"></script>
+</body>
+</html>

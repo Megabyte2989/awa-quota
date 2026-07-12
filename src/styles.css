@@ -1,0 +1,809 @@
+/* Root Variables & General Reset */
+:root {
+  --bg-primary: #121318;
+  --bg-secondary: #1a1c23;
+  --bg-tertiary: #232731;
+  --text-main: #f0f2f5;
+  --text-muted: #9fa6b2;
+  --accent-color: #3B4E87; /* Excel Theme Accent 1 */
+  --accent-hover: #4e64a1;
+  --border-color: #2e3543;
+  
+  /* Excel Brand Palette Colors */
+  --brand-navy: #3B4E87;
+  --excel-gray-fill: #F2F2F2;
+  --excel-blue-fill: #D8DCE7;
+  --excel-text-dark: #101010;
+  
+  --shadow-sm: 0 2px 4px rgba(0, 0, 0, 0.1);
+  --shadow-md: 0 4px 12px rgba(0, 0, 0, 0.15);
+  --shadow-lg: 0 10px 25px rgba(0, 0, 0, 0.2);
+  
+  --transition-fast: 0.2s ease;
+}
+
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+body {
+  font-family: 'Inter', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+  background-color: var(--bg-primary);
+  color: var(--text-main);
+  min-height: 100vh;
+  display: flex;
+  overflow-x: hidden;
+}
+
+/* Scrollbar Styling */
+::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+::-webkit-scrollbar-track {
+  background: var(--bg-secondary);
+}
+::-webkit-scrollbar-thumb {
+  background: var(--bg-tertiary);
+  border-radius: 3px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: var(--accent-color);
+}
+
+/* Font Families for Excel Replication */
+.text-arial {
+  font-family: 'Arial', sans-serif;
+}
+.text-trebuchet {
+  font-family: 'Trebuchet MS', 'Lucida Sans Unicode', 'Lucida Grande', 'Lucida Sans', Arial, sans-serif;
+}
+.font-bold {
+  font-weight: bold;
+}
+.font-italic {
+  font-style: italic;
+}
+.text-left {
+  text-align: left;
+}
+.text-center {
+  text-align: center;
+}
+.text-right {
+  text-align: right;
+}
+.mt-1 { margin-top: 4px; }
+.mt-2 { margin-top: 8px; }
+
+/* Main Grid Layout */
+.app-container {
+  display: grid;
+  grid-template-columns: 360px 1fr;
+  width: 100vw;
+  height: 100vh;
+}
+
+/* Sidebar - Dashboard & Controls */
+.sidebar {
+  background-color: var(--bg-secondary);
+  border-right: 1px solid var(--border-color);
+  padding: 24px;
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+  height: 100vh;
+  overflow-y: auto;
+  box-shadow: var(--shadow-md);
+  z-index: 10;
+}
+
+.sidebar-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  border-bottom: 1px solid var(--border-color);
+  padding-bottom: 16px;
+}
+
+.sidebar-header h2 {
+  font-size: 1.25rem;
+  font-weight: 700;
+  letter-spacing: 1px;
+  background: linear-gradient(135deg, #fff 0%, var(--text-muted) 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+
+.badge {
+  background-color: var(--accent-color);
+  color: #fff;
+  font-size: 0.75rem;
+  padding: 2px 8px;
+  border-radius: 12px;
+  font-weight: 600;
+}
+
+.sidebar-section {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.sidebar-section h3 {
+  font-size: 0.85rem;
+  text-transform: uppercase;
+  color: var(--text-muted);
+  letter-spacing: 0.5px;
+}
+
+/* Division Buttons */
+.division-selector {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.btn-div {
+  background: var(--bg-tertiary);
+  color: var(--text-main);
+  border: 1px solid var(--border-color);
+  padding: 12px 16px;
+  border-radius: 8px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font-weight: 500;
+  text-align: left;
+  transition: all var(--transition-fast);
+}
+
+.btn-div:hover {
+  background-color: var(--border-color);
+  border-color: var(--text-muted);
+}
+
+.btn-div.active {
+  background-color: var(--accent-color);
+  border-color: var(--accent-hover);
+  box-shadow: 0 0 12px rgba(59, 78, 135, 0.4);
+}
+
+.dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  display: inline-block;
+  background-color: #fff;
+}
+.dot.add { background-color: #3B4E87; }
+.dot.solutions { background-color: #4CAF50; }
+.dot.bio { background-color: #FF9800; }
+
+/* Form inputs styling */
+.form-group {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.form-row {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px;
+}
+
+.form-group label {
+  font-size: 0.75rem;
+  color: var(--text-muted);
+}
+
+.form-group input,
+.search-box input {
+  background-color: var(--bg-tertiary);
+  border: 1px solid var(--border-color);
+  color: var(--text-main);
+  padding: 8px 12px;
+  border-radius: 6px;
+  font-size: 0.9rem;
+  font-family: inherit;
+  outline: none;
+  transition: border-color var(--transition-fast);
+}
+
+.form-group input:focus,
+.search-box input:focus {
+  border-color: var(--accent-hover);
+}
+
+.form-checkbox {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 0.85rem;
+  color: var(--text-main);
+}
+
+.form-checkbox input {
+  accent-color: var(--accent-color);
+  cursor: pointer;
+  width: 16px;
+  height: 16px;
+}
+
+/* Actions Grid */
+.actions-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 10px;
+}
+
+.btn {
+  border: none;
+  padding: 10px 14px;
+  border-radius: 6px;
+  font-weight: 500;
+  font-size: 0.85rem;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  color: white;
+  transition: transform 0.1s ease, filter 0.2s ease;
+  font-family: inherit;
+}
+
+.btn:active {
+  transform: scale(0.97);
+}
+
+.btn-primary { background-color: #2b579a; }
+.btn-primary:hover { filter: brightness(1.15); }
+.btn-secondary { background-color: #4a5263; }
+.btn-secondary:hover { filter: brightness(1.15); }
+.btn-success { background-color: #217346; }
+.btn-success:hover { filter: brightness(1.15); }
+.btn-info { background-color: #0b7285; }
+.btn-info:hover { filter: brightness(1.15); }
+
+/* Saved Quotes list */
+.history-section {
+  flex-grow: 1;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
+
+.search-box input {
+  width: 100%;
+}
+
+.quotes-list {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  overflow-y: auto;
+  flex-grow: 1;
+  margin-top: 8px;
+}
+
+.empty-state {
+  text-align: center;
+  color: var(--text-muted);
+  font-size: 0.8rem;
+  padding: 20px 0;
+}
+
+.quote-item {
+  background-color: var(--bg-tertiary);
+  border: 1px solid var(--border-color);
+  border-radius: 6px;
+  padding: 10px;
+  cursor: pointer;
+  transition: all var(--transition-fast);
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.quote-item:hover {
+  border-color: var(--accent-hover);
+  background-color: var(--bg-secondary);
+}
+
+.quote-item-header {
+  display: flex;
+  justify-content: space-between;
+  font-weight: 600;
+  font-size: 0.85rem;
+}
+
+.quote-item-div {
+  font-size: 0.7rem;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  padding: 1px 6px;
+  border-radius: 4px;
+  background-color: var(--bg-secondary);
+  width: fit-content;
+}
+.quote-item-div.add { color: #8fa0d4; }
+.quote-item-div.solutions { color: #8cd48f; }
+.quote-item-div.bio { color: #d4a98c; }
+
+.quote-item-details {
+  display: flex;
+  justify-content: space-between;
+  font-size: 0.75rem;
+  color: var(--text-muted);
+  align-items: center;
+}
+
+.quote-item-actions {
+  display: flex;
+  gap: 6px;
+  margin-top: 4px;
+}
+
+.btn-icon {
+  background: transparent;
+  border: none;
+  cursor: pointer;
+  padding: 2px;
+  color: var(--text-muted);
+  transition: color var(--transition-fast);
+}
+.btn-icon:hover {
+  color: #fff;
+}
+.btn-icon.delete:hover {
+  color: #ea4335;
+}
+
+/* Main Preview Area */
+.preview-area {
+  padding: 40px;
+  overflow-y: auto;
+  display: flex;
+  justify-content: center;
+  background-color: var(--bg-primary);
+}
+
+/* The A4 Excel Sheet Styles */
+.a4-sheet {
+  background-color: #ffffff;
+  color: var(--excel-text-dark);
+  width: 210mm;
+  min-height: 297mm;
+  padding: 20mm 15mm;
+  box-shadow: var(--shadow-lg);
+  border-radius: 4px;
+  display: flex;
+  flex-direction: column;
+  position: relative;
+}
+
+/* General classes for Excel structure */
+.border-thin {
+  border: 1px solid #c0c0c0;
+}
+.border-top-thin {
+  border-top: 1px solid #c0c0c0;
+}
+.border-double {
+  border-top: 1px solid #101010;
+  border-bottom: 3px double #101010;
+}
+
+/* Division Top Branding Header */
+.sheet-header {
+  display: flex;
+  justify-content: space-between;
+  margin-bottom: 25px;
+}
+
+.brand-info {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  max-width: 60%;
+}
+
+.logo-container {
+  height: 60px;
+  display: flex;
+  align-items: center;
+}
+
+.logo-container img {
+  max-height: 100%;
+  max-width: 240px;
+  object-fit: contain;
+}
+
+.company-details {
+  font-size: 10pt;
+  line-height: 1.35;
+  color: #404040;
+}
+
+.quote-title-block {
+  text-align: right;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 15px;
+}
+
+.quote-title-block h1 {
+  font-size: 24pt;
+  color: var(--brand-navy);
+  margin-top: 0;
+  letter-spacing: 0.5px;
+}
+
+/* Meta Data Table */
+.meta-table {
+  border-collapse: collapse;
+  width: 200px;
+}
+
+.meta-table td {
+  padding: 4px 6px;
+  font-size: 10pt;
+  height: 20pt;
+  vertical-align: middle;
+}
+
+.meta-label {
+  text-align: right;
+  font-weight: normal;
+  color: #101010;
+  padding-right: 10px !important;
+  width: 90px;
+}
+
+.meta-val {
+  text-align: center;
+  background-color: #ffffff;
+  width: 110px;
+}
+
+.meta-val input[type="date"] {
+  border: none;
+  font-family: inherit;
+  font-size: inherit;
+  text-align: center;
+  width: 100%;
+  outline: none;
+  cursor: pointer;
+  background: transparent;
+  color: inherit;
+}
+
+/* Customer section */
+.customer-section {
+  margin-bottom: 20px;
+  width: 320px;
+}
+
+.customer-header {
+  background-color: var(--brand-navy);
+  color: #ffffff;
+  padding: 4px 8px;
+  font-size: 11pt;
+  height: 18pt;
+  line-height: 18pt;
+}
+
+.customer-details {
+  padding: 8px;
+  font-size: 10pt;
+  line-height: 1.4;
+  color: #101010;
+}
+
+/* Currency Indicator */
+.currency-row {
+  display: flex;
+  align-items: center;
+  margin-bottom: 8px;
+  width: 180px;
+}
+
+.currency-header {
+  background-color: var(--brand-navy);
+  color: #ffffff;
+  padding: 4px 8px;
+  font-size: 11pt;
+  height: 18pt;
+  line-height: 18pt;
+  width: 80px;
+}
+
+.currency-val {
+  padding-left: 10px;
+  font-size: 10pt;
+}
+
+/* Main Items Table */
+.items-table {
+  border-collapse: collapse;
+  width: 100%;
+  margin-bottom: 25px;
+}
+
+.items-table th {
+  background-color: var(--brand-navy);
+  color: #ffffff;
+  padding: 6px;
+  font-size: 11pt;
+  font-weight: bold;
+  height: 22pt;
+  vertical-align: middle;
+}
+
+.items-table td {
+  padding: 5px;
+  font-size: 10pt;
+  height: 20pt;
+  vertical-align: middle;
+  border: 1px solid #c0c0c0;
+}
+
+/* Column widths matching Excel columns */
+.width-desc { width: 50%; }
+.width-origin { width: 14%; }
+.width-qty { width: 11%; }
+.width-price { width: 11%; }
+.width-amount { width: 14%; }
+
+/* Styling inputs in the table */
+.items-table input {
+  width: 100%;
+  border: none;
+  font-family: inherit;
+  font-size: inherit;
+  background: transparent;
+  outline: none;
+  color: var(--excel-text-dark);
+}
+
+.items-table input.num-input {
+  text-align: right;
+}
+
+.items-table td.amount-cell {
+  background-color: var(--excel-gray-fill);
+  text-align: right;
+  font-weight: 500;
+}
+
+.items-table td.center-align {
+  text-align: center;
+}
+
+/* Table Footer Summary styling */
+.items-table tfoot td {
+  border: none;
+  padding: 4px 8px;
+}
+
+.items-table tfoot td.no-border {
+  border: none !important;
+}
+
+.items-table tfoot tr.subtotal-row td {
+  height: 18pt;
+}
+
+.items-table tfoot tr.total-row td {
+  font-size: 11pt;
+  height: 22pt;
+}
+
+#sheet-subtotal,
+#sheet-vat-amount {
+  font-weight: normal;
+}
+
+#sheet-total {
+  background-color: var(--excel-blue-fill);
+}
+
+/* Editable text states in Web Preview */
+.editable-text {
+  border-bottom: 1px dashed transparent;
+  transition: border-bottom-color var(--transition-fast), background-color var(--transition-fast);
+  cursor: text;
+  display: inline-block;
+  min-width: 30px;
+}
+
+.editable-text:hover {
+  border-bottom-color: #555;
+  background-color: rgba(0,0,0,0.02);
+}
+
+.editable-text:focus {
+  border-bottom: 1px solid #101010;
+  background-color: rgba(0,0,0,0.04);
+  outline: none;
+}
+
+.block-edit {
+  display: block;
+  width: 100%;
+}
+
+/* Terms and conditions */
+.terms-section {
+  margin-top: auto; /* Push to bottom of sheet */
+  margin-bottom: 25px;
+}
+
+.terms-header {
+  background-color: var(--brand-navy);
+  color: #ffffff;
+  padding: 4px 8px;
+  font-size: 10pt;
+  height: 18pt;
+  line-height: 18pt;
+  margin-bottom: 6px;
+  width: 250px;
+}
+
+.border-all-theme {
+  border: 1px solid var(--brand-navy);
+}
+
+.terms-content {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  font-size: 9.5pt;
+  line-height: 1.4;
+  color: #101010;
+}
+
+.terms-item {
+  padding: 2px 4px;
+  border-bottom: 1px dashed transparent;
+  outline: none;
+  min-height: 16px;
+}
+
+.terms-item:hover {
+  background-color: rgba(0,0,0,0.02);
+  border-bottom-color: #888;
+}
+
+.terms-item:focus {
+  background-color: rgba(0,0,0,0.04);
+  border-bottom-color: #101010;
+}
+
+/* Footer elements */
+.sheet-footer {
+  margin-top: 15px;
+  border-top: 1px solid #e0e0e0;
+  padding-top: 15px;
+  font-size: 10pt;
+}
+
+.sheet-footer p {
+  outline: none;
+  padding: 2px;
+}
+
+.sheet-footer p:hover {
+  background-color: rgba(0,0,0,0.02);
+}
+
+/* Toast Notifications */
+.toast {
+  position: fixed;
+  bottom: 24px;
+  right: 24px;
+  background-color: #1e293b;
+  color: white;
+  padding: 12px 20px;
+  border-radius: 8px;
+  box-shadow: var(--shadow-lg);
+  font-size: 0.9rem;
+  border: 1px solid var(--border-color);
+  opacity: 0;
+  transform: translateY(20px);
+  transition: opacity 0.3s, transform 0.3s;
+  pointer-events: none;
+  z-index: 999;
+}
+
+.toast.show {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+/* Print Specific Styles */
+@media print {
+  /* Hide all dashboard/web UI elements */
+  .no-print,
+  .sidebar,
+  .btn,
+  .badge,
+  #toast {
+    display: none !important;
+  }
+  
+  /* Reset general page styles for clean print */
+  body, html {
+    background-color: #ffffff !important;
+    color: #000000 !important;
+    margin: 0 !important;
+    padding: 0 !important;
+    height: auto !important;
+    overflow: visible !important;
+  }
+
+  .app-container {
+    display: block !important;
+    width: 100% !important;
+    height: auto !important;
+  }
+
+  .preview-area {
+    padding: 0 !important;
+    margin: 0 !important;
+    display: block !important;
+    background-color: #ffffff !important;
+    overflow: visible !important;
+  }
+
+  .a4-sheet {
+    box-shadow: none !important;
+    border: none !important;
+    margin: 0 !important;
+    padding: 10mm 10mm !important; /* Smaller margins for print */
+    width: 100% !important;
+    min-height: 0 !important;
+    height: auto !important;
+    page-break-inside: avoid;
+  }
+
+  /* Make sure inputs printed correctly */
+  input, select, textarea {
+    border: none !important;
+    background: transparent !important;
+    color: #000000 !important;
+    -webkit-appearance: none;
+    -moz-appearance: none;
+    appearance: none;
+  }
+  
+  input[type="date"]::-webkit-calendar-picker-indicator {
+    display: none !important;
+  }
+
+  /* Force background colors to print in browsers */
+  * {
+    -webkit-print-color-adjust: exact !important;
+    print-color-adjust: exact !important;
+  }
+  
+  /* Adjust heights for single page safety */
+  .logo-container {
+    height: 55px;
+  }
+  
+  .sheet-header {
+    margin-bottom: 15px;
+  }
+  
+  .items-table {
+    margin-bottom: 15px;
+  }
+}

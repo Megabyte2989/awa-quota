@@ -447,6 +447,7 @@ function calculateRowAmount(idx) {
   } else {
     amountCell.textContent = '0.00';
   }
+  calculateTotals();
 }
 
 // Calculate subtotal, VAT, and total

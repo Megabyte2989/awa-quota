@@ -73,7 +73,7 @@ let quoteData = {
   validityDays: 3,
   currency: 'EGP',
   vatRate: 14,
-  vatIncluded: true,
+  vatIncluded: false,
   itemCount: 12,
   customerName: '[Company Name]',
   customerContact: '[contact name]',

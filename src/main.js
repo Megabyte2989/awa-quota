@@ -1,4 +1,7 @@
 import ExcelJS from 'exceljs/dist/exceljs.min.js';
+import logoAdd from './assets/logo-add.png';
+import logoSolutions from './assets/logo-solutions.png';
+import logoBio from './assets/logo-bio.png';
 
 // Division configurations
 const DIVISIONS = {
@@ -9,7 +12,7 @@ const DIVISIONS = {
     website: 'www.awa-foodadd.net',
     phone: '(+203) 4292030 - 4211200',
     fax: '+203 4292060',
-    logo: '/assets/logo-add.png',
+    logo: logoAdd,
     themeColor: '#3B4E87',
     sheetName: 'ADD',
     defaultItems: [
@@ -30,7 +33,7 @@ const DIVISIONS = {
     website: 'www.awa-foodsolutions.com',
     phone: '+203 5890155 / 165',
     fax: '+203 5890145',
-    logo: '/assets/logo-solutions.png',
+    logo: logoSolutions,
     themeColor: '#3B4E87',
     sheetName: 'solutions',
     defaultItems: [
@@ -51,7 +54,7 @@ const DIVISIONS = {
     website: 'awa-bioingredients.com',
     phone: '(+203) 4292030 - 4211200',
     fax: '+203 4292060',
-    logo: '/assets/logo-bio.png',
+    logo: logoBio,
     themeColor: '#3B4E87',
     sheetName: 'Bio',
     defaultItems: [],

@@ -66,10 +66,9 @@ const DIVISIONS = {
 };
 
 // Global App State
-let currentDiv = 'add';
-let quoteData = {
+const quoteData = {
   preparedBy: '',
-  quoteNo: '123456',
+  quoteNo: '',
   customerId: '123',
   date: '',
   validUntil: '',
@@ -88,15 +87,20 @@ let quoteData = {
   footerThanks: 'Thank You For Your Business!'
 };
 
-// Global materials data for autocomplete
+let currentDiv = 'add';
 let materialsList = [];
+let activeRowEditIdx = 0; // The active row accordion index expanded in the sidebar
 
 // Dom elements cache
 const DOM = {
   divSelectors: document.querySelectorAll('.btn-div'),
   inputPreparedBy: document.getElementById('input-prepared-by'),
   inputQuoteNo: document.getElementById('input-quote-no'),
+  inputDate: document.getElementById('input-date'),
   inputCustomerId: document.getElementById('input-customer-id'),
+  inputCustomerName: document.getElementById('input-customer-name'),
+  inputCustomerContact: document.getElementById('input-customer-contact'),
+  inputCustomerPhone: document.getElementById('input-customer-phone'),
   inputCurrency: document.getElementById('input-currency'),
   inputValidity: document.getElementById('input-validity'),
   inputVat: document.getElementById('input-vat'),
@@ -104,11 +108,18 @@ const DOM = {
   inputUnit: document.getElementById('input-unit'),
   customUnitGroup: document.getElementById('custom-unit-group'),
   inputCustomUnit: document.getElementById('input-custom-unit'),
-  headerQty: document.getElementById('header-qty'),
-  headerPrice: document.getElementById('header-price'),
   checkboxVatIncluded: document.getElementById('checkbox-vat-included'),
+  inputFooterContact: document.getElementById('input-footer-contact'),
+  inputFooterThanks: document.getElementById('input-footer-thanks'),
+  inputTerm1: document.getElementById('input-term-1'),
+  inputTerm2: document.getElementById('input-term-2'),
+  inputTerm3: document.getElementById('input-term-3'),
+  
+  sidebarItemsAccordion: document.getElementById('sidebar-items-accordion'),
+
   btnNew: document.getElementById('btn-new'),
   btnPrint: document.getElementById('btn-print'),
+  btnShare: document.getElementById('btn-share'),
   btnExport: document.getElementById('btn-export'),
   
   // Sheet preview elements
@@ -135,7 +146,9 @@ const DOM = {
   termsList: document.getElementById('terms-list'),
   sheetFooterContact: document.getElementById('sheet-footer-contact'),
   sheetFooterThanks: document.getElementById('sheet-footer-thanks'),
-  toast: document.getElementById('toast')
+  toast: document.getElementById('toast'),
+  headerQty: document.getElementById('header-qty'),
+  headerPrice: document.getElementById('header-price')
 };
 
 // Initialize Application
@@ -145,32 +158,46 @@ function init() {
   quoteData.date = formatDate(today);
   quoteData.validUntil = formatDate(addDays(today, quoteData.validityDays));
   
-  DOM.sheetDate.value = quoteData.date;
-  DOM.sheetValidUntil.value = quoteData.validUntil;
+  DOM.sheetDate.textContent = quoteData.date;
+  DOM.sheetValidUntil.textContent = quoteData.validUntil;
 
   // Set default values in controls
   DOM.inputPreparedBy.value = '';
   quoteData.preparedBy = '[salesperson name]';
   DOM.sheetPreparedBy.textContent = quoteData.preparedBy;
   
-  DOM.inputQuoteNo.value = quoteData.quoteNo;
+  DOM.inputQuoteNo.value = 'Q' + Math.floor(100000 + Math.random() * 900000);
+  quoteData.quoteNo = DOM.inputQuoteNo.value;
+  DOM.sheetQuoteNo.textContent = quoteData.quoteNo;
+
   DOM.inputCustomerId.value = quoteData.customerId;
+  DOM.inputCustomerName.value = quoteData.customerName;
+  DOM.inputCustomerContact.value = quoteData.customerContact;
+  DOM.inputCustomerPhone.value = quoteData.customerPhone;
   DOM.inputCurrency.value = quoteData.currency;
   DOM.inputValidity.value = quoteData.validityDays;
   DOM.inputVat.value = quoteData.vatRate;
   DOM.inputItemCount.value = quoteData.itemCount;
   DOM.inputUnit.value = quoteData.unit;
   DOM.checkboxVatIncluded.checked = quoteData.vatIncluded;
+  
+  DOM.inputDate.value = quoteData.date;
+  DOM.inputFooterContact.value = quoteData.footerContact;
+  DOM.inputFooterThanks.value = quoteData.footerThanks;
+
+  DOM.sheetCustomerName.textContent = quoteData.customerName;
+  DOM.sheetCustomerContact.textContent = quoteData.customerContact;
+  DOM.sheetCustomerPhone.textContent = quoteData.customerPhone;
+  DOM.sheetFooterContact.textContent = quoteData.footerContact;
+  DOM.sheetFooterThanks.textContent = quoteData.footerThanks;
 
   // Event Listeners for controls
   setupControlListeners();
-  
-  // Event Listeners for editable content on sheet
-  setupSheetEditableListeners();
 
   // Setup button actions
   DOM.btnNew.addEventListener('click', () => resetQuote(currentDiv));
   DOM.btnPrint.addEventListener('click', () => window.print());
+  DOM.btnShare.addEventListener('click', sharePDF);
   DOM.btnExport.addEventListener('click', exportToExcel);
 
   // Switch to default division Additives
@@ -234,9 +261,35 @@ function setupControlListeners() {
     DOM.sheetQuoteNo.textContent = quoteData.quoteNo;
   });
 
+  DOM.inputDate.addEventListener('input', (e) => {
+    quoteData.date = e.target.value;
+    DOM.sheetDate.textContent = quoteData.date;
+    
+    // Recalculate Validity
+    const dateVal = new Date(quoteData.date);
+    const newValidUntil = formatDate(addDays(dateVal, quoteData.validityDays));
+    quoteData.validUntil = newValidUntil;
+    DOM.sheetValidUntil.textContent = newValidUntil;
+  });
+
   DOM.inputCustomerId.addEventListener('input', (e) => {
     quoteData.customerId = e.target.value;
     DOM.sheetCustomerId.textContent = quoteData.customerId;
+  });
+
+  DOM.inputCustomerName.addEventListener('input', (e) => {
+    quoteData.customerName = e.target.value || '[Company Name]';
+    DOM.sheetCustomerName.textContent = quoteData.customerName;
+  });
+
+  DOM.inputCustomerContact.addEventListener('input', (e) => {
+    quoteData.customerContact = e.target.value || '[contact name]';
+    DOM.sheetCustomerContact.textContent = quoteData.customerContact;
+  });
+
+  DOM.inputCustomerPhone.addEventListener('input', (e) => {
+    quoteData.customerPhone = e.target.value || '[Phone]';
+    DOM.sheetCustomerPhone.textContent = quoteData.customerPhone;
   });
 
   DOM.inputCurrency.addEventListener('input', (e) => {
@@ -247,10 +300,10 @@ function setupControlListeners() {
   DOM.inputValidity.addEventListener('input', (e) => {
     const days = parseInt(e.target.value) || 0;
     quoteData.validityDays = days;
-    const dateVal = new Date(DOM.sheetDate.value);
+    const dateVal = new Date(quoteData.date);
     const newValidUntil = formatDate(addDays(dateVal, days));
     quoteData.validUntil = newValidUntil;
-    DOM.sheetValidUntil.value = newValidUntil;
+    DOM.sheetValidUntil.textContent = newValidUntil;
   });
 
   DOM.inputVat.addEventListener('input', (e) => {
@@ -283,71 +336,429 @@ function setupControlListeners() {
       updateMeasurementUnit('custom');
     }
   });
+
+  DOM.inputFooterContact.addEventListener('input', (e) => {
+    quoteData.footerContact = e.target.value || '';
+    DOM.sheetFooterContact.textContent = quoteData.footerContact;
+  });
+
+  DOM.inputFooterThanks.addEventListener('input', (e) => {
+    quoteData.footerThanks = e.target.value || '';
+    DOM.sheetFooterThanks.textContent = quoteData.footerThanks;
+  });
+
+  // Handle Terms edits from the sidebar
+  [DOM.inputTerm1, DOM.inputTerm2, DOM.inputTerm3].forEach((input, index) => {
+    input.addEventListener('input', (e) => {
+      quoteData.terms[index] = e.target.value;
+      renderSheetTerms();
+    });
+  });
 }
 
-// Helper to update the measurement unit labels
-function updateMeasurementUnit(unitVal) {
-  if (unitVal === 'custom') {
-    DOM.customUnitGroup.style.display = 'block';
-    const customVal = DOM.inputCustomUnit.value.trim() || 'unit';
-    quoteData.unit = customVal;
+// Load default terms
+function resetTermsToDefault(defaultTerms) {
+  quoteData.terms = [...defaultTerms];
+  
+  DOM.inputTerm1.value = quoteData.terms[0] || '';
+  DOM.inputTerm2.value = quoteData.terms[1] || '';
+  DOM.inputTerm3.value = quoteData.terms[2] || '';
+  
+  renderSheetTerms();
+}
+
+function renderSheetTerms() {
+  DOM.termsList.innerHTML = '';
+  for (let i = 0; i < 3; i++) {
+    const val = quoteData.terms[i] || '';
+    const item = document.createElement('div');
+    item.className = 'terms-item';
+    item.textContent = val;
+    DOM.termsList.appendChild(item);
+  }
+}
+
+// Render preview items table (completely read-only)
+function renderItemTable() {
+  DOM.itemsBody.innerHTML = '';
+  
+  quoteData.lines.forEach((line, idx) => {
+    const row = document.createElement('tr');
+    if (idx === activeRowEditIdx) {
+      row.classList.add('active-row-edit');
+    }
+    
+    row.innerHTML = `
+      <td colspan="2" class="desc-cell-container text-trebuchet">${line.desc || ''}</td>
+      <td class="center-align text-trebuchet text-center">${line.origin || ''}</td>
+      <td class="center-align text-trebuchet text-center">${line.qty || ''}</td>
+      <td class="center-align text-trebuchet text-center">${line.price || ''}</td>
+      <td class="amount-cell text-trebuchet amount-val" id="amount-${idx}">0.00</td>
+    `;
+    
+    // Allow clicking a row on A4 sheet to open its accordion editor in the sidebar
+    row.addEventListener('click', () => {
+      setActiveRowEdit(idx);
+    });
+    
+    DOM.itemsBody.appendChild(row);
+  });
+
+  // Update all amounts on sheet
+  quoteData.lines.forEach((_, i) => {
+    calculateRowAmount(i);
+  });
+}
+
+// Change the active editing row index
+function setActiveRowEdit(idx) {
+  activeRowEditIdx = idx;
+  
+  // Re-render accordion items to update visual expansion state
+  renderSidebarItemEditors();
+  
+  // Refresh highlights on sheet preview
+  const rows = DOM.itemsBody.querySelectorAll('tr');
+  rows.forEach((row, rIdx) => {
+    if (rIdx === idx) {
+      row.classList.add('active-row-edit');
+      
+      // Smoothly scroll the sidebar accordion item into view
+      const activeAccordion = DOM.sidebarItemsAccordion.children[idx];
+      if (activeAccordion) {
+        activeAccordion.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+      }
+    } else {
+      row.classList.remove('active-row-edit');
+    }
+  });
+}
+
+// Render dynamic collapsible item editor list in sidebar
+function renderSidebarItemEditors() {
+  DOM.sidebarItemsAccordion.innerHTML = '';
+  
+  quoteData.lines.forEach((line, idx) => {
+    const item = document.createElement('div');
+    item.className = 'accordion-item';
+    if (idx === activeRowEditIdx) {
+      item.classList.add('expanded', 'active-sidebar-edit');
+    }
+    
+    const headerText = line.desc ? `${idx + 1}. ${line.desc}` : `Item Row ${idx + 1} (Empty)`;
+    
+    item.innerHTML = `
+      <div class="accordion-header">
+        <span class="header-title">${headerText}</span>
+        <span class="accordion-arrow">▼</span>
+      </div>
+      <div class="accordion-content">
+        <div class="form-group">
+          <label>Description</label>
+          <div class="desc-input-wrapper">
+            <input type="text" class="sidebar-desc-input" value="${line.desc}" placeholder="Search or type description..." autocomplete="off">
+          </div>
+        </div>
+        <div class="form-group">
+          <label>Origin</label>
+          <input type="text" class="sidebar-origin-input" value="${line.origin}" placeholder="Origin (e.g. Egypt)">
+        </div>
+        <div class="form-row">
+          <div class="form-group">
+            <label>QTY / ${quoteData.unit}</label>
+            <input type="text" class="sidebar-qty-input" value="${line.qty}" placeholder="-">
+          </div>
+          <div class="form-group">
+            <label>Price / ${quoteData.unit}</label>
+            <input type="text" class="sidebar-price-input" value="${line.price}" placeholder="-">
+          </div>
+        </div>
+      </div>
+    `;
+    
+    // Bind toggle action on header click
+    const header = item.querySelector('.accordion-header');
+    header.addEventListener('click', () => {
+      if (activeRowEditIdx === idx) {
+        setActiveRowEdit(-1); // Collapse all
+      } else {
+        setActiveRowEdit(idx); // Expand clicked
+      }
+    });
+    
+    DOM.sidebarItemsAccordion.appendChild(item);
+  });
+  
+  setupSidebarItemListeners();
+}
+
+// Bind input change handlers inside active sidebar accordion item
+function setupSidebarItemListeners() {
+  if (activeRowEditIdx === -1) return;
+  
+  const activeItem = DOM.sidebarItemsAccordion.children[activeRowEditIdx];
+  if (!activeItem) return;
+  
+  const descInput = activeItem.querySelector('.sidebar-desc-input');
+  const originInput = activeItem.querySelector('.sidebar-origin-input');
+  const qtyInput = activeItem.querySelector('.sidebar-qty-input');
+  const priceInput = activeItem.querySelector('.sidebar-price-input');
+  const descWrapper = descInput.parentElement;
+  
+  const updateState = () => {
+    const idx = activeRowEditIdx;
+    quoteData.lines[idx].desc = descInput.value;
+    quoteData.lines[idx].origin = originInput.value;
+    
+    // Clean inputs: allow only numbers and decimals
+    let qtyVal = qtyInput.value.replace(/[^0-9.]/g, '');
+    let priceVal = priceInput.value.replace(/[^0-9.]/g, '');
+    
+    if (qtyInput.value !== qtyVal) qtyInput.value = qtyVal;
+    if (priceInput.value !== priceVal) priceInput.value = priceVal;
+    
+    quoteData.lines[idx].qty = qtyVal;
+    quoteData.lines[idx].price = priceVal;
+    
+    // Update matching row values on sheet preview dynamically
+    const rows = DOM.itemsBody.querySelectorAll('tr');
+    if (rows[idx]) {
+      rows[idx].querySelector('.desc-cell-container').textContent = descInput.value;
+      rows[idx].querySelector('td:nth-child(2)').textContent = originInput.value;
+      rows[idx].querySelector('td:nth-child(3)').textContent = qtyVal;
+      rows[idx].querySelector('td:nth-child(4)').textContent = priceVal;
+    }
+    
+    calculateRowAmount(idx);
+    calculateTotals();
+    
+    // Update header label inside sidebar accordion
+    const headerTitle = activeItem.querySelector('.header-title');
+    headerTitle.textContent = descInput.value ? `${idx + 1}. ${descInput.value}` : `Item Row ${idx + 1} (Empty)`;
+  };
+  
+  descInput.addEventListener('input', updateState);
+  originInput.addEventListener('input', updateState);
+  qtyInput.addEventListener('input', updateState);
+  priceInput.addEventListener('input', updateState);
+
+  // Material Auto-complete Dropdown logic inside sidebar
+  let activeMatchIdx = -1;
+  
+  const closeDropdown = () => {
+    const existing = descWrapper.querySelector('.autocomplete-dropdown');
+    if (existing) existing.remove();
+    activeMatchIdx = -1;
+  };
+  
+  const selectItem = (item) => {
+    const idx = activeRowEditIdx;
+    descInput.value = item.desc;
+    quoteData.lines[idx].desc = item.desc;
+    
+    if (item.origin) {
+      originInput.value = item.origin;
+      quoteData.lines[idx].origin = item.origin;
+    }
+    if (item.price) {
+      priceInput.value = item.price.toString();
+      quoteData.lines[idx].price = item.price.toString();
+    }
+    
+    updateState();
+    closeDropdown();
+    qtyInput.focus();
+  };
+  
+  descInput.addEventListener('input', (e) => {
+    closeDropdown();
+    const val = descInput.value.trim().toLowerCase();
+    if (!val) return;
+    
+    // Filter matching materials starting with typed text
+    const matches = materialsList.filter(m => 
+      m.desc.toLowerCase().startsWith(val)
+    ).slice(0, 40);
+    
+    if (matches.length === 0) return;
+    
+    const dropdown = document.createElement('div');
+    dropdown.className = 'autocomplete-dropdown';
+    
+    matches.forEach((match, mIdx) => {
+      const el = document.createElement('div');
+      el.className = 'autocomplete-item';
+      el.textContent = match.desc;
+      
+      el.addEventListener('click', () => selectItem(match));
+      dropdown.appendChild(el);
+    });
+    
+    descWrapper.appendChild(dropdown);
+  });
+  
+  // Keyboard bindings for autocomplete navigation
+  descInput.addEventListener('keydown', (e) => {
+    const dropdown = descWrapper.querySelector('.autocomplete-dropdown');
+    if (!dropdown) return;
+    
+    const items = dropdown.querySelectorAll('.autocomplete-item');
+    if (items.length === 0) return;
+    
+    if (e.key === 'ArrowDown') {
+      e.preventDefault();
+      activeMatchIdx = (activeMatchIdx + 1) % items.length;
+      highlightItem(items);
+    } else if (e.key === 'ArrowUp') {
+      e.preventDefault();
+      activeMatchIdx = (activeMatchIdx - 1 + items.length) % items.length;
+      highlightItem(items);
+    } else if (e.key === 'Enter') {
+      e.preventDefault();
+      if (activeMatchIdx >= 0 && activeMatchIdx < items.length) {
+        const selectedText = items[activeMatchIdx].textContent;
+        const match = materialsList.find(m => m.desc === selectedText);
+        if (match) selectItem(match);
+      }
+    } else if (e.key === 'Escape') {
+      closeDropdown();
+    }
+  });
+  
+  function highlightItem(items) {
+    items.forEach((item, index) => {
+      if (index === activeMatchIdx) {
+        item.classList.add('active');
+        item.scrollIntoView({ block: 'nearest' });
+      } else {
+        item.classList.remove('active');
+      }
+    });
+  }
+  
+  // Dismiss dropdown on document click
+  document.addEventListener('click', (e) => {
+    if (!descWrapper.contains(e.target)) {
+      closeDropdown();
+    }
+  });
+}
+
+// Calculate individual row amount
+function calculateRowAmount(idx) {
+  const line = quoteData.lines[idx];
+  const qty = parseFloat(line.qty) || 0;
+  const price = parseFloat(line.price) || 0;
+  const amount = qty * price;
+  
+  const amtCell = document.getElementById(`amount-${idx}`);
+  if (amtCell) {
+    amtCell.textContent = amount.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+  }
+  return amount;
+}
+
+// Calculate global subtotal, vat, and grand total
+function calculateTotals() {
+  let subtotal = 0;
+  quoteData.lines.forEach((line, idx) => {
+    const qty = parseFloat(line.qty) || 0;
+    const price = parseFloat(line.price) || 0;
+    subtotal += qty * price;
+  });
+
+  let vatAmount = 0;
+  let total = subtotal;
+
+  if (quoteData.vatRate > 0) {
+    if (quoteData.vatIncluded) {
+      // VAT is already included in subtotal: subtotal = Base + VAT
+      // Base = subtotal / (1 + vatRate/100)
+      const base = subtotal / (1 + (quoteData.vatRate / 100));
+      vatAmount = subtotal - base;
+      DOM.vatCalcRow.style.display = 'table-row';
+      DOM.vatCalcRow.querySelector('td:nth-child(2)').textContent = `VAT Included (${quoteData.vatRate}%)`;
+    } else {
+      // VAT is added on top of subtotal
+      vatAmount = subtotal * (quoteData.vatRate / 100);
+      total = subtotal + vatAmount;
+      DOM.vatCalcRow.style.display = 'table-row';
+      DOM.vatCalcRow.querySelector('td:nth-child(2)').textContent = `VAT (${quoteData.vatRate}%)`;
+    }
   } else {
-    DOM.customUnitGroup.style.display = 'none';
-    quoteData.unit = unitVal;
+    DOM.vatCalcRow.style.display = 'none';
   }
 
-  // Update sheet headers text content
-  if (DOM.headerQty && DOM.headerPrice) {
-    DOM.headerQty.textContent = `QTY/${quoteData.unit}`;
-    DOM.headerPrice.textContent = `Price/${quoteData.unit}`;
-  }
+  DOM.sheetSubtotal.textContent = subtotal.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+  DOM.sheetVatAmount.textContent = vatAmount.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+  DOM.sheetTotal.textContent = total.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
 }
 
-// Setup Event Listeners for Sheet Preview editable texts
-function setupSheetEditableListeners() {
-  DOM.sheetPreparedBy.addEventListener('blur', (e) => {
-    quoteData.preparedBy = e.target.textContent;
-    DOM.inputPreparedBy.value = quoteData.preparedBy;
-  });
+// Reset current quote to defaults
+function resetQuote(divId) {
+  const confirmReset = confirm("Are you sure you want to initialize a new quote? Current entries will be cleared.");
+  if (!confirmReset) return;
 
-  DOM.sheetQuoteNo.addEventListener('blur', (e) => {
-    quoteData.quoteNo = e.target.textContent;
-    DOM.inputQuoteNo.value = quoteData.quoteNo;
-  });
+  const nextNo = 'Q' + Math.floor(100000 + Math.random() * 900000);
+  quoteData.quoteNo = nextNo;
+  DOM.inputQuoteNo.value = nextNo;
+  DOM.sheetQuoteNo.textContent = nextNo;
 
-  DOM.sheetCustomerId.addEventListener('blur', (e) => {
-    quoteData.customerId = e.target.textContent;
-    DOM.inputCustomerId.value = quoteData.customerId;
-  });
+  quoteData.customerId = '123';
+  DOM.inputCustomerId.value = '123';
+  DOM.sheetCustomerId.textContent = '123';
 
-  DOM.sheetDate.addEventListener('change', (e) => {
-    quoteData.date = e.target.value;
-    const newValidUntil = formatDate(addDays(new Date(e.target.value), quoteData.validityDays));
-    quoteData.validUntil = newValidUntil;
-    DOM.sheetValidUntil.value = newValidUntil;
-  });
+  DOM.inputCustomerName.value = '[Company Name]';
+  DOM.inputCustomerContact.value = '[contact name]';
+  DOM.inputCustomerPhone.value = '[Phone]';
+  DOM.sheetCustomerName.textContent = '[Company Name]';
+  DOM.sheetCustomerContact.textContent = '[contact name]';
+  DOM.sheetCustomerPhone.textContent = '[Phone]';
+  
+  quoteData.customerName = '[Company Name]';
+  quoteData.customerContact = '[contact name]';
+  quoteData.customerPhone = '[Phone]';
 
-  DOM.sheetValidUntil.addEventListener('change', (e) => {
-    quoteData.validUntil = e.target.value;
-    const d1 = new Date(DOM.sheetDate.value);
-    const d2 = new Date(e.target.value);
-    const diffTime = Math.abs(d2 - d1);
-    const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
-    quoteData.validityDays = diffDays;
-    DOM.inputValidity.value = diffDays;
-  });
+  const today = new Date();
+  quoteData.date = formatDate(today);
+  quoteData.validityDays = 3;
+  quoteData.validUntil = formatDate(addDays(today, 3));
+  
+  DOM.inputDate.value = quoteData.date;
+  DOM.sheetDate.textContent = quoteData.date;
+  DOM.sheetValidUntil.textContent = quoteData.validUntil;
+  DOM.inputValidity.value = 3;
+  
+  quoteData.itemCount = 12;
+  DOM.inputItemCount.value = 12;
 
-  // Customer bindings
-  DOM.sheetCustomerName.addEventListener('blur', (e) => quoteData.customerName = e.target.textContent);
-  DOM.sheetCustomerContact.addEventListener('blur', (e) => quoteData.customerContact = e.target.textContent);
-  DOM.sheetCustomerPhone.addEventListener('blur', (e) => quoteData.customerPhone = e.target.textContent);
-  DOM.sheetCurrency.addEventListener('blur', (e) => {
-    quoteData.currency = e.target.textContent;
-    DOM.inputCurrency.value = quoteData.currency;
-  });
+  activeRowEditIdx = 0; // Reset active row edit back to first row
+  switchDivision(divId);
+  showToast("Quotation sheet reset.");
+}
 
-  DOM.sheetFooterContact.addEventListener('blur', (e) => quoteData.footerContact = e.target.textContent);
-  DOM.sheetFooterThanks.addEventListener('blur', (e) => quoteData.footerThanks = e.target.textContent);
+// Resize the lines list (preserving current typed inputs)
+function resizeQuoteLines(newCount) {
+  const diff = newCount - quoteData.lines.length;
+  if (diff > 0) {
+    for (let i = 0; i < diff; i++) {
+      quoteData.lines.push({ desc: '', origin: '', qty: '', price: '' });
+    }
+  } else if (diff < 0) {
+    quoteData.lines.splice(newCount);
+  }
+
+  // Adjust activeRowEditIdx if it is now out of bounds
+  if (activeRowEditIdx >= newCount) {
+    activeRowEditIdx = newCount - 1;
+  }
+  if (activeRowEditIdx < 0 && newCount > 0) {
+    activeRowEditIdx = 0;
+  }
+
+  renderItemTable();
+  renderSidebarItemEditors();
+  calculateTotals();
 }
 
 // Switch between division styles & defaults
@@ -381,297 +792,83 @@ function switchDivision(divId) {
   quoteData.lines = newLines;
 
   renderItemTable();
+  renderSidebarItemEditors();
   resetTermsToDefault(config.defaultTerms);
   updateMeasurementUnit(DOM.inputUnit.value);
   calculateTotals();
 }
 
-// Resize the lines list (preserving current typed inputs)
-function resizeQuoteLines(newCount) {
-  const currentLines = [...quoteData.lines];
-  const newLines = [];
-  
-  for (let i = 0; i < newCount; i++) {
-    if (currentLines[i]) {
-      newLines.push(currentLines[i]); // Keep existing
-    } else {
-      // Pad with blank row
-      newLines.push({ desc: '', origin: '', qty: '', price: '' });
-    }
+// Helper to update the measurement unit labels
+function updateMeasurementUnit(unitVal) {
+  if (unitVal === 'custom') {
+    DOM.customUnitGroup.style.display = 'block';
+    const customVal = DOM.inputCustomUnit.value.trim() || 'unit';
+    quoteData.unit = customVal;
+  } else {
+    DOM.customUnitGroup.style.display = 'none';
+    quoteData.unit = unitVal;
+  }
+
+  // Update sheet headers text content
+  if (DOM.headerQty && DOM.headerPrice) {
+    DOM.headerQty.textContent = `QTY/${quoteData.unit}`;
+    DOM.headerPrice.textContent = `Price/${quoteData.unit}`;
   }
   
-  quoteData.lines = newLines;
-  renderItemTable();
-  calculateTotals();
+  // Re-render accordion elements to show correct units
+  renderSidebarItemEditors();
 }
 
-// Renders rows in the preview table using text input fields for easy typing
-function renderItemTable() {
-  DOM.itemsBody.innerHTML = '';
+// Web Share PDF API inside Mobile Devices
+function sharePDF() {
+  const element = document.getElementById('printable-area');
   
-  quoteData.lines.forEach((line, idx) => {
-    const row = document.createElement('tr');
-    
-    // Note: inputs are type="text" to allow normal keyboard inputs without arrows blocking
-    row.innerHTML = `
-      <td colspan="2" class="desc-cell-container"><input type="text" class="desc-input text-trebuchet" value="${line.desc}" placeholder="Item description..." autocomplete="off"></td>
-      <td class="center-align"><input type="text" class="origin-input text-trebuchet text-center" value="${line.origin}" placeholder="Origin..."></td>
-      <td class="center-align"><input type="text" class="qty-input num-input text-trebuchet text-center" value="${line.qty}" placeholder="-"></td>
-      <td class="center-align"><input type="text" class="price-input num-input text-trebuchet text-center" value="${line.price}" placeholder="-"></td>
-      <td class="amount-cell text-trebuchet amount-val" id="amount-${idx}">0.00</td>
-    `;
-    
-    DOM.itemsBody.appendChild(row);
-  });
-
-  setupTableListeners();
+  // Temporarily disable active row edit highlight for clean PDF printout
+  const activeRow = DOM.itemsBody.querySelector('.active-row-edit');
+  if (activeRow) activeRow.classList.remove('active-row-edit');
   
-  // Update all amounts on sheet
-  quoteData.lines.forEach((_, i) => {
-    calculateRowAmount(i);
-  });
-}
-
-// Load default terms
-function resetTermsToDefault(defaultTerms) {
-  DOM.termsList.innerHTML = '';
-  quoteData.terms = [...defaultTerms];
+  const opt = {
+    margin:       0.1,
+    filename:     `AWA-Quotation-${quoteData.quoteNo || 'Draft'}.pdf`,
+    image:        { type: 'jpeg', quality: 0.98 },
+    html2canvas:  { scale: 2.5, useCORS: true, logging: false },
+    jsPDF:        { unit: 'in', format: 'a4', orientation: 'portrait' }
+  };
   
-  for (let i = 0; i < 3; i++) {
-    const val = quoteData.terms[i] || '';
-    const item = document.createElement('div');
-    item.className = 'terms-item';
-    item.contentEditable = 'true';
-    item.textContent = val;
+  showToast("Generating PDF...");
+  
+  // Generate PDF and try Web Share API
+  html2pdf().set(opt).from(element).toPdf().get('pdf').then(function (pdf) {
+    // Restore active row highlight
+    if (activeRow) activeRow.classList.add('active-row-edit');
     
-    item.addEventListener('blur', (e) => {
-      quoteData.terms[i] = e.target.textContent;
-    });
+    const blob = pdf.output('blob');
+    const file = new File([blob], opt.filename, { type: 'application/pdf' });
     
-    DOM.termsList.appendChild(item);
-  }
-}
-
-// Set listeners on inputs inside preview table
-function setupTableListeners() {
-  const rows = DOM.itemsBody.querySelectorAll('tr');
-  rows.forEach((row, idx) => {
-    const descInput = row.querySelector('.desc-input');
-    const originInput = row.querySelector('.origin-input');
-    const qtyInput = row.querySelector('.qty-input');
-    const priceInput = row.querySelector('.price-input');
-    const descCell = descInput.parentElement;
-    
-    const updateState = () => {
-      quoteData.lines[idx].desc = descInput.value;
-      quoteData.lines[idx].origin = originInput.value;
-      
-      // Clean inputs: allow only numbers, dots, and common floats
-      let qtyVal = qtyInput.value.replace(/[^0-9.]/g, '');
-      let priceVal = priceInput.value.replace(/[^0-9.]/g, '');
-      
-      // Update fields if they typed invalid characters
-      if (qtyInput.value !== qtyVal) qtyInput.value = qtyVal;
-      if (priceInput.value !== priceVal) priceInput.value = priceVal;
-      
-      quoteData.lines[idx].qty = qtyVal;
-      quoteData.lines[idx].price = priceVal;
-      
-      calculateRowAmount(idx);
-    };
-
-    descInput.addEventListener('input', updateState);
-    originInput.addEventListener('input', updateState);
-    qtyInput.addEventListener('input', updateState);
-    priceInput.addEventListener('input', updateState);
-
-    // Autocomplete Dropdown Functionality
-    let activeItemIdx = -1;
-
-    const closeDropdown = () => {
-      const existing = descCell.querySelector('.autocomplete-dropdown');
-      if (existing) existing.remove();
-      activeItemIdx = -1;
-    };
-
-    const selectItem = (item) => {
-      descInput.value = item.desc;
-      quoteData.lines[idx].desc = item.desc;
-      
-      if (item.origin) {
-        originInput.value = item.origin;
-        quoteData.lines[idx].origin = item.origin;
-      }
-      if (item.price) {
-        priceInput.value = item.price.toString();
-        quoteData.lines[idx].price = item.price.toString();
-      }
-      
-      calculateRowAmount(idx);
-      closeDropdown();
-      qtyInput.focus(); // Shift focus to Quantity input automatically
-    };
-
-    descInput.addEventListener('input', (e) => {
-      closeDropdown();
-      const val = descInput.value.trim().toLowerCase();
-      if (!val) return;
-
-      // Filter: only show options starting with typed text
-      const matches = materialsList.filter(item => 
-        item.desc.toLowerCase().startsWith(val)
-      ).slice(0, 40); // limit popup list to 40 items
-
-      if (matches.length === 0) return;
-
-      const dropdown = document.createElement('div');
-      dropdown.className = 'autocomplete-dropdown';
-
-      matches.forEach((match, mIdx) => {
-        const itemElement = document.createElement('div');
-        itemElement.className = 'autocomplete-item';
-        itemElement.textContent = match.desc;
-        if (mIdx === 0) {
-          itemElement.classList.add('active');
-          activeItemIdx = 0;
+    // Check if navigator.share with files is supported
+    if (navigator.canShare && navigator.canShare({ files: [file] })) {
+      navigator.share({
+        files: [file],
+        title: `AWA Quotation #${quoteData.quoteNo}`,
+        text: `Attached is AWA quotation #${quoteData.quoteNo} for your review.`
+      })
+      .then(() => showToast("Shared successfully!"))
+      .catch(err => {
+        if (err.name !== 'AbortError') {
+          console.error("Error sharing:", err);
+          fallbackDownload(opt, element);
         }
-
-        // Prevent input blur prior to executing selection
-        itemElement.addEventListener('mousedown', (e) => {
-          e.preventDefault();
-          selectItem(match);
-        });
-
-        dropdown.appendChild(itemElement);
       });
-
-      descCell.appendChild(dropdown);
-    });
-
-    descInput.addEventListener('keydown', (e) => {
-      const dropdown = descCell.querySelector('.autocomplete-dropdown');
-      if (!dropdown) return;
-
-      const items = dropdown.querySelectorAll('.autocomplete-item');
-      if (items.length === 0) return;
-
-      if (e.key === 'ArrowDown') {
-        e.preventDefault();
-        items[activeItemIdx]?.classList.remove('active');
-        activeItemIdx = (activeItemIdx + 1) % items.length;
-        items[activeItemIdx].classList.add('active');
-        items[activeItemIdx].scrollIntoView({ block: 'nearest' });
-      } else if (e.key === 'ArrowUp') {
-        e.preventDefault();
-        items[activeItemIdx]?.classList.remove('active');
-        activeItemIdx = (activeItemIdx - 1 + items.length) % items.length;
-        items[activeItemIdx].classList.add('active');
-        items[activeItemIdx].scrollIntoView({ block: 'nearest' });
-      } else if (e.key === 'Enter') {
-        e.preventDefault();
-        if (activeItemIdx >= 0 && activeItemIdx < items.length) {
-          const selectedText = items[activeItemIdx].textContent;
-          const match = materialsList.find(m => m.desc === selectedText);
-          if (match) {
-            selectItem(match);
-          }
-        }
-      } else if (e.key === 'Escape') {
-        e.preventDefault();
-        closeDropdown();
-      }
-    });
-
-    descInput.addEventListener('blur', () => {
-      setTimeout(closeDropdown, 150);
-    });
-  });
-}
-
-// Calculates amount for a single row
-function calculateRowAmount(idx) {
-  const line = quoteData.lines[idx];
-  const qty = parseFloat(line.qty) || 0;
-  const price = parseFloat(line.price) || 0;
-  const amount = qty * price;
-  
-  const amountCell = document.getElementById(`amount-${idx}`);
-  if (qty > 0 && price > 0) {
-    amountCell.textContent = amount.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
-  } else {
-    amountCell.textContent = '0.00';
-  }
-  calculateTotals();
-}
-
-// Calculate subtotal, VAT, and total
-function calculateTotals() {
-  let subtotal = 0;
-  quoteData.lines.forEach((line) => {
-    const qty = parseFloat(line.qty) || 0;
-    const price = parseFloat(line.price) || 0;
-    subtotal += qty * price;
-  });
-
-  let vatAmount = 0;
-  let total = subtotal;
-
-  if (quoteData.vatRate > 0) {
-    if (quoteData.vatIncluded) {
-      // VAT is already included in prices: total = subtotal
-      vatAmount = subtotal - (subtotal / (1 + quoteData.vatRate / 100));
-      DOM.vatCalcRow.style.display = 'none';
     } else {
-      // VAT needs to be added: total = subtotal + vat
-      vatAmount = subtotal * (quoteData.vatRate / 100);
-      total = subtotal + vatAmount;
-      DOM.vatCalcRow.style.display = 'table-row';
+      // Fallback: download directly
+      fallbackDownload(opt, element);
     }
-  } else {
-    DOM.vatCalcRow.style.display = 'none';
-  }
-
-  DOM.sheetSubtotal.textContent = subtotal.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
-  DOM.sheetVatAmount.textContent = vatAmount.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
-  DOM.sheetTotal.textContent = total.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+  });
 }
 
-// Reset current quote to default blanks
-function resetQuote(divId) {
-  const confirmReset = confirm("Are you sure you want to initialize a new quote? Current entries will be cleared.");
-  if (!confirmReset) return;
-
-  const nextNo = 'Q' + Math.floor(100000 + Math.random() * 900000);
-  quoteData.quoteNo = nextNo;
-  DOM.inputQuoteNo.value = nextNo;
-  DOM.sheetQuoteNo.textContent = nextNo;
-
-  quoteData.customerId = '123';
-  DOM.inputCustomerId.value = '123';
-  DOM.sheetCustomerId.textContent = '123';
-
-  DOM.sheetCustomerName.textContent = '[Company Name]';
-  DOM.sheetCustomerContact.textContent = '[contact name]';
-  DOM.sheetCustomerPhone.textContent = '[Phone]';
-  
-  quoteData.customerName = '[Company Name]';
-  quoteData.customerContact = '[contact name]';
-  quoteData.customerPhone = '[Phone]';
-
-  const today = new Date();
-  quoteData.date = formatDate(today);
-  quoteData.validityDays = 3;
-  quoteData.validUntil = formatDate(addDays(today, 3));
-  
-  DOM.sheetDate.value = quoteData.date;
-  DOM.sheetValidUntil.value = quoteData.validUntil;
-  DOM.inputValidity.value = 3;
-  
-  quoteData.itemCount = 12;
-  DOM.inputItemCount.value = 12;
-
-  switchDivision(divId);
-  showToast("Quotation sheet reset.");
+function fallbackDownload(opt, element) {
+  showToast("PDF downloaded successfully!");
+  html2pdf().set(opt).from(element).save();
 }
 
 // Convert image to base64

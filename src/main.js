@@ -74,8 +74,6 @@ const quoteData = {
   validUntil: '',
   validityDays: 3,
   currency: 'EGP',
-  vatRate: 14,
-  vatIncluded: false,
   itemCount: 12,
   unit: 'kg',
   customerName: '[Company Name]',
@@ -103,12 +101,10 @@ const DOM = {
   inputCustomerPhone: document.getElementById('input-customer-phone'),
   inputCurrency: document.getElementById('input-currency'),
   inputValidity: document.getElementById('input-validity'),
-  inputVat: document.getElementById('input-vat'),
   inputItemCount: document.getElementById('input-item-count'),
   inputUnit: document.getElementById('input-unit'),
   customUnitGroup: document.getElementById('custom-unit-group'),
   inputCustomUnit: document.getElementById('input-custom-unit'),
-  checkboxVatIncluded: document.getElementById('checkbox-vat-included'),
   inputFooterContact: document.getElementById('input-footer-contact'),
   inputFooterThanks: document.getElementById('input-footer-thanks'),
   inputTerm1: document.getElementById('input-term-1'),
@@ -139,10 +135,7 @@ const DOM = {
   sheetCurrency: document.getElementById('sheet-currency'),
   itemsBody: document.getElementById('items-body'),
   sheetSubtotal: document.getElementById('sheet-subtotal'),
-  sheetVatAmount: document.getElementById('sheet-vat-amount'),
-  sheetVatPercent: document.getElementById('sheet-vat-percent'),
   sheetTotal: document.getElementById('sheet-total'),
-  vatCalcRow: document.getElementById('vat-calc-row'),
   termsList: document.getElementById('terms-list'),
   sheetFooterContact: document.getElementById('sheet-footer-contact'),
   sheetFooterThanks: document.getElementById('sheet-footer-thanks'),
@@ -176,10 +169,8 @@ function init() {
   DOM.inputCustomerPhone.value = quoteData.customerPhone;
   DOM.inputCurrency.value = quoteData.currency;
   DOM.inputValidity.value = quoteData.validityDays;
-  DOM.inputVat.value = quoteData.vatRate;
   DOM.inputItemCount.value = quoteData.itemCount;
   DOM.inputUnit.value = quoteData.unit;
-  DOM.checkboxVatIncluded.checked = quoteData.vatIncluded;
   
   DOM.inputDate.value = quoteData.date;
   DOM.inputFooterContact.value = quoteData.footerContact;
@@ -306,16 +297,7 @@ function setupControlListeners() {
     DOM.sheetValidUntil.textContent = newValidUntil;
   });
 
-  DOM.inputVat.addEventListener('input', (e) => {
-    quoteData.vatRate = parseFloat(e.target.value) || 0;
-    DOM.sheetVatPercent.textContent = quoteData.vatRate;
-    calculateTotals();
-  });
 
-  DOM.checkboxVatIncluded.addEventListener('change', (e) => {
-    quoteData.vatIncluded = e.target.checked;
-    calculateTotals();
-  });
 
   // Handle Item Count changes dynamically
   DOM.inputItemCount.addEventListener('input', (e) => {
@@ -658,7 +640,7 @@ function calculateRowAmount(idx) {
   return amount;
 }
 
-// Calculate global subtotal, vat, and grand total
+// Calculate global subtotal and grand total
 function calculateTotals() {
   let subtotal = 0;
   quoteData.lines.forEach((line, idx) => {
@@ -667,31 +649,8 @@ function calculateTotals() {
     subtotal += qty * price;
   });
 
-  let vatAmount = 0;
-  let total = subtotal;
-
-  if (quoteData.vatRate > 0) {
-    if (quoteData.vatIncluded) {
-      // VAT is already included in subtotal: subtotal = Base + VAT
-      // Base = subtotal / (1 + vatRate/100)
-      const base = subtotal / (1 + (quoteData.vatRate / 100));
-      vatAmount = subtotal - base;
-      DOM.vatCalcRow.style.display = 'table-row';
-      DOM.vatCalcRow.querySelector('td:nth-child(2)').textContent = `VAT Included (${quoteData.vatRate}%)`;
-    } else {
-      // VAT is added on top of subtotal
-      vatAmount = subtotal * (quoteData.vatRate / 100);
-      total = subtotal + vatAmount;
-      DOM.vatCalcRow.style.display = 'table-row';
-      DOM.vatCalcRow.querySelector('td:nth-child(2)').textContent = `VAT (${quoteData.vatRate}%)`;
-    }
-  } else {
-    DOM.vatCalcRow.style.display = 'none';
-  }
-
   DOM.sheetSubtotal.textContent = subtotal.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
-  DOM.sheetVatAmount.textContent = vatAmount.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
-  DOM.sheetTotal.textContent = total.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+  DOM.sheetTotal.textContent = subtotal.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
 }
 
 // Reset current quote to defaults
@@ -1169,21 +1128,7 @@ async function exportToExcel() {
       tCell.alignment = alignLeft;
     });
 
-    // Handle VAT calculation in Excel sheet E/F columns (on termsHeaderRow)
     let totalFormula = `F${subtotalRow}`;
-    if (quoteData.vatRate > 0 && !quoteData.vatIncluded) {
-      sheet.getCell(`E${termsHeaderRow}`).value = `VAT (${quoteData.vatRate}%)`;
-      sheet.getCell(`E${termsHeaderRow}`).font = fontTrebuchet;
-      sheet.getCell(`E${termsHeaderRow}`).alignment = alignLeft;
-
-      const vatValCell = sheet.getCell(`F${termsHeaderRow}`);
-      vatValCell.value = { formula: `F${subtotalRow}*(${quoteData.vatRate}/100)` };
-      vatValCell.font = fontTrebuchet;
-      vatValCell.alignment = alignRight;
-      vatValCell.numFmt = '#,##0.00';
-      
-      totalFormula = `F${subtotalRow}+F${termsHeaderRow}`;
-    }
 
     // Row: TOTAL
     sheet.getRow(totalRow).height = 15.0;

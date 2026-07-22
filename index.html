@@ -92,15 +92,9 @@
               <input type="number" id="input-validity" value="3">
             </div>
           </div>
-          <div class="form-row">
-            <div class="form-group">
-              <label for="input-vat">VAT Rate (%)</label>
-              <input type="number" id="input-vat" value="14" min="0" max="100">
-            </div>
-            <div class="form-group">
-              <label for="input-item-count">No. of Items</label>
-              <input type="number" id="input-item-count" value="12" min="1" max="30">
-            </div>
+          <div class="form-group">
+            <label for="input-item-count">No. of Items</label>
+            <input type="number" id="input-item-count" value="12" min="1" max="30">
           </div>
           <div class="form-row">
             <div class="form-group">
@@ -120,10 +114,7 @@
               <input type="text" id="input-custom-unit" placeholder="ex. box">
             </div>
           </div>
-          <div class="form-checkbox">
-            <input type="checkbox" id="checkbox-vat-included">
-            <label for="checkbox-vat-included">Prices Include VAT</label>
-          </div>
+
         </div>
 
         <div class="settings-group">
@@ -269,11 +260,7 @@
               <td colspan="2" class="text-trebuchet text-right border-top-thin">Subtotal</td>
               <td class="text-trebuchet text-right border-top-thin" id="sheet-subtotal">0.00</td>
             </tr>
-            <tr class="vat-row" id="vat-calc-row">
-              <td colspan="3" class="no-border"></td>
-              <td colspan="2" class="text-trebuchet text-right">VAT (<span id="sheet-vat-percent">14</span>%)</td>
-              <td class="text-trebuchet text-right" id="sheet-vat-amount">0.00</td>
-            </tr>
+
             <tr class="total-row">
               <td colspan="3" class="no-border"></td>
               <td colspan="2" class="text-trebuchet font-bold text-right">TOTAL</td>
